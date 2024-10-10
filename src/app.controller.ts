@@ -101,7 +101,7 @@ export class AppController {
       });
 
       pythonProcess.stderr.on('data', (data) => {
-        // console.error(`Error: ${data}`);
+        console.error(`Error: ${data}`);
         // reject(`Error: ${data}`);
       });
     });
