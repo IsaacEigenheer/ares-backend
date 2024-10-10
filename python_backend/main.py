@@ -59,8 +59,8 @@ def start(path, config, current_client):
         first_page = pdf_document[0]
         scale_factor = dpi / 72.0
         image = first_page.get_pixmap(matrix=fitz.Matrix(scale_factor, scale_factor))
-        image.save(f'images/{filename_id}.png')
-        image_path = f'images/{filename_id}.png'
+        image.save(f'./images/{filename_id}.png')
+        image_path = f'./images/{filename_id}.png'
         processar_imagem(image_path, config, current_client)
     
     if current_client != 'HPE':
@@ -183,7 +183,7 @@ def detect_lines_and_save(image, image_name, h, w, config, current_client):
         cv2.imwrite(output_path, cropped_image)
         t += 1
 
-    output_path = os.path.join(fr"processed_images/processedimage{filename_id}.png")
+    output_path = os.path.join(fr"./processed_images/processedimage{filename_id}.png")
     print('2', flush=True)
     cv2.imwrite(output_path, image)
 
