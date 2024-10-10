@@ -25,7 +25,7 @@ from openpyxl import Workbook
 
 os.chdir('./python_backend')
 
-print(os.getcwd, flush=True)
+print(os.getcwd(), flush=True)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
