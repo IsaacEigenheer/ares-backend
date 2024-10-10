@@ -1,0 +1,205 @@
+{   
+"customers":
+{
+    "Jacto": {
+        "minLineLenght": 400,
+        "tolerancia": 0.02,
+        "limiares": [
+            [1, 255],
+            [70,220],
+            [50, 150],
+            [180, 240],
+            [250, 255],
+            [1, 0]
+        ],
+        "minShape": 0.017,
+        "maxShape": 0.95,
+        "normalSizeDpi": 200,
+        "bigSizeDpi": 400,
+        "extraSizeDpi": 600,
+        "intersectionArea": 0.1
+    },
+    "Caterpillar": {
+        "minLineLenght": 300,
+        "tolerancia": 0.1,
+        "limiares": [
+            [1, 255],
+            [70,220],
+            [50, 150],
+            [180, 240],
+            [250, 255],
+            [1, 0]
+        ],
+        "minShape": 0.022,
+        "maxShape": 0.95,
+        "normalSizeDpi": 400,
+        "bigSizeDpi": 400,
+        "extraSizeDpi": 400,
+        "intersectionArea": 0.15
+    },
+    "CNH": {
+        "minLineLenght": 200,
+        "tolerancia": 0.02,
+        "limiares": [
+            [1, 255],
+            [1, 0]
+        ],
+        "minShape": 0.05,
+        "maxShape": 0.95,
+        "normalSizeDpi": 175,
+        "bigSizeDpi": 200,
+        "extraSizeDpi": 200,
+        "intersectionArea": 0.15
+    },
+    "AGCO": {
+        "minLineLenght": 200,
+        "tolerancia": 0.1,
+        "limiares": [
+            [1, 255],
+            [70,220],
+            [50, 150],
+            [180, 240],
+            [250, 255],
+            [1, 0]
+        ],
+        "minShape": 0.017,
+        "maxShape": 0.95,
+        "normalSizeDpi": 175,
+        "bigSizeDpi": 200,
+        "extraSizeDpi": 400,
+        "intersectionArea": 0.15
+
+    },
+    "Komatsu": {
+        "minLineLenght": 400,
+        "tolerancia": 0.02,
+        "limiares": [
+            [1, 255],
+            [70,220],
+            [50, 150],
+            [180, 240],
+            [250, 255],
+            [1, 0]
+        ],
+        "minShape": 0.02,
+        "maxShape": 0.95,
+        "normalSizeDpi": 100,
+        "bigSizeDpi": 200,
+        "extraSizeDpi": 400,
+        "intersectionArea": 0.15
+    },
+    "John Deere": {
+        "minLineLenght": 200,
+        "tolerancia": 0.1,
+        "limiares": [
+            [1, 255],
+            [70,220],
+            [50, 150],
+            [180, 240],
+            [250, 255],
+            [1, 0]
+        ],
+        "minShape": 0.017,
+        "maxShape": 0.95,
+        "normalSizeDpi": 175,
+        "bigSizeDpi": 200,
+        "extraSizeDpi": 400,
+        "intersectionArea": 0.15
+
+    },
+    "Whirlpool": {
+        "minLineLenght": 200,
+        "tolerancia": 0.1,
+        "limiares": [
+            [1, 255],
+            [70,220],
+            [50, 150],
+            [180, 240],
+            [250, 255],
+            [1, 0]
+        ],
+        "minShape": 0.017,
+        "maxShape": 0.95,
+        "normalSizeDpi": 175,
+        "bigSizeDpi": 200,
+        "extraSizeDpi": 400,
+        "intersectionArea": 0.15
+
+    },
+    "Electrolux": {
+        "minLineLenght": 400,
+        "tolerancia": 0.1,
+        "limiares": [
+            [1, 255],
+            [70,220],
+            [50, 150],
+            [180, 240],
+            [250, 255],
+            [1, 0]
+        ],
+        "minShape": 0.017,
+        "maxShape": 0.95,
+        "normalSizeDpi": 175,
+        "bigSizeDpi": 200,
+        "extraSizeDpi": 400,
+        "intersectionArea": 0.15
+
+    },
+    "JCB": {
+        "minLineLenght": 200,
+        "tolerancia": 0.1,
+        "limiares": [
+            [1, 255],
+            [70,220],
+            [50, 150],
+            [180, 240],
+            [250, 255],
+            [1, 0]
+        ],
+        "minShape": 0.017,
+        "maxShape": 0.95,
+        "normalSizeDpi": 175,
+        "bigSizeDpi": 200,
+        "extraSizeDpi": 400,
+        "intersectionArea": 0.15
+
+    },
+    "Embraco": {
+        "minLineLenght": 400,
+        "tolerancia": 0.1,
+        "limiares": [
+            [1, 255],
+            [70,220],
+            [50, 150],
+            [180, 240],
+            [250, 255],
+            [1, 0]
+        ],
+        "minShape": 0.05,
+        "maxShape": 0.95,
+        "normalSizeDpi": 175,
+        "bigSizeDpi": 200,
+        "extraSizeDpi": 400,
+        "intersectionArea": 0.07
+
+    },
+    "HPE": {
+        "minLineLenght": 400,
+        "tolerancia": 0.1,
+        "limiares": [
+            [1, 255],
+            [70,220],
+            [50, 150],
+            [180, 240],
+            [250, 255],
+            [1, 0]
+        ],
+        "minShape": 0.05,
+        "maxShape": 0.95,
+        "normalSizeDpi": 200,
+        "bigSizeDpi": 200,
+        "extraSizeDpi": 200,
+        "intersectionArea": 0.15
+    }
+}
+}
