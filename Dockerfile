@@ -33,7 +33,7 @@ COPY . .
 RUN npm install --quiet --no-optional --no-fund --loglevel=error
 
 # Expõe a porta para acesso
-EXPOSE 7001
+EXPOSE 2001
 
 # Comando para iniciar a aplicação
 CMD ["sh", "-c", "sleep 5 && npm run start:dev"]
