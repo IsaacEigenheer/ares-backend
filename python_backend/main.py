@@ -23,7 +23,7 @@ import warnings
 from openpyxl import Workbook
 
 
-os.chdir('./python_backend')
+os.chdir('/python_backend')
 
 print(os.getcwd(), flush=True)
 
@@ -172,14 +172,15 @@ def detect_lines_and_save(image, image_name, h, w, config, current_client):
 
     for rect in non_overlapping_rectangles:
         x1, y1, x2, y2 = rect
-
+        
         y1 -= (int(h*0.01))
         y2 += (int(h*0.01))
         x1 -= 25
         x2 += 25
         cropped_image = image[y1:y2, x1:x2]
-
+        print('cropped_image: ' + cropped_image, flush=True)
         output_path = os.path.join("./cropped_images" , f"{t}{image_name}")##################################################################
+        print('output_path: ' + output_path, flush=True)
         #cv2.line(image, (x1, y1), (x2, y2), (0,255,0), 6)
         #cv2.rectangle(image, (x1, y1), (x2, y2), (0,255,0), 6)
         cv2.imwrite(output_path, cropped_image)
