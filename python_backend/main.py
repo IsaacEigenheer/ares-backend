@@ -23,11 +23,13 @@ import warnings
 from openpyxl import Workbook
 
 
-os.chdir('python_backend')
+os.chdir('./python_backend')
+
+print(os.getcwd, flush=True)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-model = YOLO('Models/newS.pt').to(device)
+model = YOLO('./Models/newS.pt').to(device)
 
 def calc_size(path):
     pdf_path = path
