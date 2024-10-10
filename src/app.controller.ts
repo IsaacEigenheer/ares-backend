@@ -41,7 +41,7 @@ export class AppController {
   ) {
     let nomeDoArquivo: string;
     return new Promise((resolve, reject) => {
-      const pythonProcess = spawn('./enviroment/python.exe', [
+      const pythonProcess = spawn('python', [
         './python_backend/main.py',
         `../uploads/${file.filename}`,
         query.type,
