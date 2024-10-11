@@ -440,6 +440,7 @@ def make_finalSheet(current_client, filename_id):
         c = 1
         p = 1
         w = 1
+        arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
         for arquivo in arquivos_excel:
             if filename_id in arquivo:
                 wb_origem = load_workbook(f'{caminho_pasta_excel}/{arquivo}')
@@ -489,7 +490,6 @@ def make_finalSheet(current_client, filename_id):
             df_final.at[3, 'X'] = c
             df_final.at[18, 'X'] = p
 
-        arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
         print(f'ExcelFinal {arquivo_excel_path}', flush=True)
         wb_destino.save(arquivo_excel_path)
         print('6', flush=True)
@@ -499,7 +499,7 @@ def make_finalSheet(current_client, filename_id):
         excel_final = 'generic_spreadsheet.xlsx'
         arquivos_excel = [arquivo for arquivo in os.listdir(caminho_pasta_excel) if arquivo.endswith(".xlsx")]
         wb_destino = load_workbook(excel_final)
-
+        arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
         for arquivo in arquivos_excel:
             if filename_id in arquivo:
                 wb_origem = load_workbook(f'{caminho_pasta_excel}/{arquivo}')
@@ -520,7 +520,6 @@ def make_finalSheet(current_client, filename_id):
                         for row in ws_origem.iter_rows(min_row=2, values_only=True):
                             ws_destino.append(row)
 
-        arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
         print(f'ExcelFinal {arquivo_excel_path}', flush=True)
         wb_destino.save(arquivo_excel_path)
         print('6', flush=True)

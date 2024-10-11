@@ -32,7 +32,7 @@
         ],
         "minShape": 0.022,
         "maxShape": 0.95,
-        "normalSizeDpi": 400,
+        "normalSizeDpi": 200,
         "bigSizeDpi": 400,
         "extraSizeDpi": 400,
         "intersectionArea": 0.15
