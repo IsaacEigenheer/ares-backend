@@ -338,9 +338,9 @@ def excel(path, current_client):
     caminhos_arquivos = []
 
     if current_client != 'HPE':
-        path_cropped = 'crops2'
+        path_cropped = './crops2'
     else:
-        path_cropped = 'cropped_images'
+        path_cropped = './cropped_images'
 
     for arquivo in os.listdir(path_cropped):
         if filename_id in arquivo:
@@ -440,7 +440,6 @@ def make_finalSheet(current_client, filename_id):
         c = 1
         p = 1
         w = 1
-        arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
         for arquivo in arquivos_excel:
             if filename_id in arquivo:
                 wb_origem = load_workbook(f'{caminho_pasta_excel}/{arquivo}')
@@ -486,20 +485,20 @@ def make_finalSheet(current_client, filename_id):
                         for row in ws_origem.iter_rows(min_row=2, values_only=True):
                             ws_destino.append(row)
 
-            df_final = pd.read_excel(arquivo_excel_path, sheet_name='DADOS')
-            df_final.at[3, 'X'] = c
-            df_final.at[18, 'X'] = p
-
-        print(f'ExcelFinal {arquivo_excel_path}', flush=True)
-        wb_destino.save(arquivo_excel_path)
-        print('6', flush=True)
+                arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
+                df_final = pd.read_excel(arquivo_excel_path, sheet_name='DADOS')    
+                df_final.at[3, 'X'] = c
+                df_final.at[18, 'X'] = p
+                wb_destino.save(arquivo_excel_path)
+                
+            print(f'ExcelFinal {arquivo_excel_path}', flush=True)
+            print('6', flush=True)
 
     def generic_convert(filename_id):
         caminho_pasta_excel = 'Excel'
         excel_final = 'generic_spreadsheet.xlsx'
         arquivos_excel = [arquivo for arquivo in os.listdir(caminho_pasta_excel) if arquivo.endswith(".xlsx")]
         wb_destino = load_workbook(excel_final)
-        arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
         for arquivo in arquivos_excel:
             if filename_id in arquivo:
                 wb_origem = load_workbook(f'{caminho_pasta_excel}/{arquivo}')
@@ -520,8 +519,11 @@ def make_finalSheet(current_client, filename_id):
                         for row in ws_origem.iter_rows(min_row=2, values_only=True):
                             ws_destino.append(row)
 
+            arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
+            
+            wb_destino.save(arquivo_excel_path)
+
         print(f'ExcelFinal {arquivo_excel_path}', flush=True)
-        wb_destino.save(arquivo_excel_path)
         print('6', flush=True)
 
     warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl.styles.stylesheet")

@@ -32,9 +32,9 @@
         ],
         "minShape": 0.022,
         "maxShape": 0.95,
-        "normalSizeDpi": 200,
-        "bigSizeDpi": 400,
-        "extraSizeDpi": 400,
+        "normalSizeDpi": 175,
+        "bigSizeDpi": 200,
+        "extraSizeDpi": 200,
         "intersectionArea": 0.15
     },
     "CNH": {
