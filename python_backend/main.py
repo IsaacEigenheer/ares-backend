@@ -65,8 +65,8 @@ def start(path, config, current_client):
         image_path = f'./images/{filename_id}.png'
         processar_imagem(image_path, config, current_client)
     
-    #if current_client != 'HPE':
-    #    yoloDetect(filename_id)
+    if current_client != 'HPE':
+        yoloDetect(filename_id)
 
     excel(path, current_client)
 
@@ -337,11 +337,10 @@ def excel(path, current_client):
     print('4', flush=True)
     caminhos_arquivos = []
 
-    #if current_client != 'HPE':
-    #    path_cropped = './crops2'
-    #else:
-    
-    path_cropped = './cropped_images'
+    if current_client != 'HPE':
+       path_cropped = './crops2'
+    else:
+        path_cropped = './cropped_images'
 
     for arquivo in os.listdir(path_cropped):
         if filename_id in arquivo:
