@@ -173,10 +173,10 @@ def detect_lines_and_save(image, image_name, h, w, config, current_client):
     for rect in non_overlapping_rectangles:
         x1, y1, x2, y2 = rect
         
-        #y1 -= (int(h*0.01))
-        #y2 += (int(h*0.01))
-        #x1 -= 25
-        #x2 += 25
+        y1 -= (int(h*0.01))
+        y2 += (int(h*0.01))
+        x1 -= 25
+        x2 += 25
         cropped_image = image[y1:y2, x1:x2]
         print(cropped_image, flush=True)
         output_path = os.path.join("./cropped_images" , f"{t}{image_name}")##################################################################
@@ -486,12 +486,13 @@ def make_finalSheet(current_client, filename_id):
                             ws_destino.append(row)
 
                 arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
-                print(f'ExcelFinal {arquivo_excel_path}', flush=True)
                 wb_destino.save(arquivo_excel_path)
                 df_final = pd.read_excel(arquivo_excel_path, sheet_name='DADOS')    
                 df_final.at[3, 'X'] = c
                 df_final.at[18, 'X'] = p
-                print('6', flush=True)
+
+        print(f'ExcelFinal {arquivo_excel_path}', flush=True)
+        print('6', flush=True)
 
             
             
@@ -522,11 +523,10 @@ def make_finalSheet(current_client, filename_id):
                             ws_destino.append(row)
 
             arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
-            print(f'ExcelFinal {arquivo_excel_path}', flush=True)
             wb_destino.save(arquivo_excel_path)
-            print('6', flush=True)
-        
-        
+            
+        print(f'ExcelFinal {arquivo_excel_path}', flush=True)
+        print('6', flush=True)
 
     warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl.styles.stylesheet")
     if current_client == 'Caterpillar':
