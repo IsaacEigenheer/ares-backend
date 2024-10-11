@@ -65,8 +65,8 @@ def start(path, config, current_client):
         image_path = f'./images/{filename_id}.png'
         processar_imagem(image_path, config, current_client)
     
-    if current_client != 'HPE':
-        yoloDetect(filename_id)
+    #if current_client != 'HPE':
+    #    yoloDetect(filename_id)
 
     excel(path, current_client)
 
