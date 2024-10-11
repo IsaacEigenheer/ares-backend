@@ -490,8 +490,8 @@ def make_finalSheet(current_client, filename_id):
                 df_final = pd.read_excel(arquivo_excel_path, sheet_name='DADOS')    
                 df_final.at[3, 'X'] = c
                 df_final.at[18, 'X'] = p
-
-        print(f'ExcelFinal {arquivo_excel_path}', flush=True)
+                print(f'ExcelFinal {arquivo_excel_path}', flush=True)
+                
         print('6', flush=True)
 
             
@@ -524,8 +524,8 @@ def make_finalSheet(current_client, filename_id):
 
             arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
             wb_destino.save(arquivo_excel_path)
-            
-        print(f'ExcelFinal {arquivo_excel_path}', flush=True)
+            print(f'ExcelFinal {arquivo_excel_path}', flush=True)
+
         print('6', flush=True)
 
     warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl.styles.stylesheet")
