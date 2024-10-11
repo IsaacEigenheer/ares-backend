@@ -173,10 +173,10 @@ def detect_lines_and_save(image, image_name, h, w, config, current_client):
     for rect in non_overlapping_rectangles:
         x1, y1, x2, y2 = rect
         
-        y1 -= (int(h*0.01))
-        y2 += (int(h*0.01))
-        x1 -= 25
-        x2 += 25
+        y1 -= (int(h*0.005))
+        y2 += (int(h*0.005))
+        x1 -= 15
+        x2 += 15
         cropped_image = image[y1:y2, x1:x2]
         print(cropped_image, flush=True)
         output_path = os.path.join("./cropped_images" , f"{t}{image_name}")##################################################################
@@ -540,7 +540,7 @@ def make_finalSheet(current_client, filename_id):
 if __name__ == '__main__':
     arg1 = sys.argv[1]
     arg2 = sys.argv[2]
-    with open('config.json') as json_data:
+    with open('./config.json') as json_data:
         data = json.load(json_data,)
         config = data['customers'][arg2]
 
