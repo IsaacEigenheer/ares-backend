@@ -175,8 +175,8 @@ def detect_lines_and_save(image, image_name, h, w, config, current_client):
         
         y1 -= (int(h*0.005))
         y2 += (int(h*0.005))
-        x1 -= 15
-        x2 += 15
+        x1 -= 5
+        x2 += 5
         cropped_image = image[y1:y2, x1:x2]
         print(cropped_image, flush=True)
         output_path = os.path.join("./cropped_images" , f"{t}{image_name}")##################################################################
