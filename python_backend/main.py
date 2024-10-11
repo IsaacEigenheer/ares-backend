@@ -337,10 +337,11 @@ def excel(path, current_client):
     print('4', flush=True)
     caminhos_arquivos = []
 
-    if current_client != 'HPE':
-        path_cropped = './crops2'
-    else:
-        path_cropped = './cropped_images'
+    #if current_client != 'HPE':
+    #    path_cropped = './crops2'
+    #else:
+    
+    path_cropped = './cropped_images'
 
     for arquivo in os.listdir(path_cropped):
         if filename_id in arquivo:
