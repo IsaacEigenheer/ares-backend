@@ -172,18 +172,10 @@ def detect_lines_and_save(image, image_name, h, w, config, current_client):
     print('começando a salvar as imagens', flush=True)
     for rect in non_overlapping_rectangles:
         x1, y1, x2, y2 = rect
-        
-        y1_ = y1 - 5
-        y2_ = y2 + 5
-        x1_ = x1 - 5
-        x2_ = x2 + 5
-
-        cropped_image = image[y1_:y2_, x1_:x2_]
+        cropped_image = image[y1-5:y2+5, x1-5:x2+5]
         print(cropped_image, flush=True)
         output_path = os.path.join("./cropped_images" , f"{t}{image_name}")##################################################################
         print(output_path, flush=True)
-        #cv2.line(image, (x1, y1), (x2, y2), (0,255,0), 6)
-        #cv2.rectangle(image, (x1, y1), (x2, y2), (0,255,0), 6)
         cv2.imwrite(output_path, cropped_image)
         t += 1
 
