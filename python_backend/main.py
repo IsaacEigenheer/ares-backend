@@ -25,8 +25,6 @@ from openpyxl import Workbook
 
 os.chdir('/python_backend')
 
-print(os.getcwd(), flush=True)
-
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 model = YOLO('./Models/newS.pt').to(device)
@@ -169,7 +167,6 @@ def detect_lines_and_save(image, image_name, h, w, config, current_client):
     non_overlapping_rectangles = remove_overlapping_rectangles(not_inside, intersectionArea)
     non_overlapping_rectangles = np.unique(non_overlapping_rectangles, axis=0)
     t = 0
-    print('começando a salvar as imagens', flush=True)
     for rect in non_overlapping_rectangles:
         x1, y1, x2, y2 = rect
 
@@ -186,9 +183,7 @@ def detect_lines_and_save(image, image_name, h, w, config, current_client):
             x2 += 15
 
         cropped_image = image[y1:y2, x1:x2]
-        print(cropped_image, flush=True)
         output_path = os.path.join("./cropped_images" , f"{t}{image_name}")##################################################################
-        print(output_path, flush=True)
         cv2.imwrite(output_path, cropped_image)
         t += 1
 
