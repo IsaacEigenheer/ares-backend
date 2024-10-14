@@ -57,6 +57,7 @@ export class AppController {
         }
 
         console.log(`Progress: ${data}`);
+        this.eventsGateway.progress(progress);
         if (data.toString().startsWith('ExcelFinal')) {
           console.log(data);
 
