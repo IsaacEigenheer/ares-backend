@@ -173,7 +173,9 @@ def detect_lines_and_save(image, image_name, h, w, config, current_client):
     for rect in non_overlapping_rectangles:
         x1, y1, x2, y2 = rect
         
+        print('h: '+ h + 'y: ' + y1, flush=True)
         y1 = int(y1) - int(h*0.05)
+        print('h: '+ h + 'y: ' + y1, flush=True)
         y2 = int(y2) + int(h*0.05)
         x1 = int(x1) - int(5)
         x2 = int(x2) + int(5)
