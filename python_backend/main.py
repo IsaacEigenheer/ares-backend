@@ -117,7 +117,7 @@ def detect_lines_and_save(image, image_name, h, w, config, current_client):
 
     for low_trheshold, high_threshold in limiares:
         edges = cv2.Canny(gray, low_trheshold, high_threshold, apertureSize=3)
-        lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold = 100, minLineLength = config['minLineLenght'], maxLineGap=10)
+        lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold = 100, minLineLength = config['minLineLenght'], maxLineGap=100)
         if lines is not None:
             all_lines.extend(lines)
 
