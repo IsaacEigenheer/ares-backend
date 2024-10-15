@@ -31,7 +31,7 @@
             [1, 0]
         ],
         "minShape": 0.022,
-        "maxShape": 0.95,
+        "maxShape": 0.90,
         "normalSizeDpi": 400,
         "bigSizeDpi": 400,
         "extraSizeDpi": 400,
