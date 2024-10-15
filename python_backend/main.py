@@ -173,7 +173,7 @@ def detect_lines_and_save(image, image_name, h, w, config, current_client):
         if (y1 - int(h*0.02)) > 0:
             y1 = y1 - int(h*0.02)
             if(y1 - int(h*0.01)) > 0:
-                y1 = y1 - int(h*0.02)
+                y1 = y1 - int(h*0.01)
         
         if(y2 + int(h*0.02)) < h:
             y2 = y2 + int(h*0.02)
