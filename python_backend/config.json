@@ -14,9 +14,6 @@
         ],
         "minShape": 0.017,
         "maxShape": 0.95,
-        "normalSizeDpi": 200,
-        "bigSizeDpi": 400,
-        "extraSizeDpi": 600,
         "intersectionArea": 0.1
     },
     "Caterpillar": {
@@ -32,9 +29,6 @@
         ],
         "minShape": 0.022,
         "maxShape": 0.90,
-        "normalSizeDpi": 400,
-        "bigSizeDpi": 400,
-        "extraSizeDpi": 400,
         "intersectionArea": 0.15
     },
     "CNH": {
@@ -46,9 +40,6 @@
         ],
         "minShape": 0.05,
         "maxShape": 0.95,
-        "normalSizeDpi": 175,
-        "bigSizeDpi": 200,
-        "extraSizeDpi": 200,
         "intersectionArea": 0.15
     },
     "AGCO": {
@@ -64,9 +55,6 @@
         ],
         "minShape": 0.017,
         "maxShape": 0.95,
-        "normalSizeDpi": 175,
-        "bigSizeDpi": 200,
-        "extraSizeDpi": 400,
         "intersectionArea": 0.15
 
     },
@@ -83,9 +71,6 @@
         ],
         "minShape": 0.02,
         "maxShape": 0.95,
-        "normalSizeDpi": 100,
-        "bigSizeDpi": 200,
-        "extraSizeDpi": 400,
         "intersectionArea": 0.15
     },
     "John Deere": {
@@ -101,9 +86,6 @@
         ],
         "minShape": 0.017,
         "maxShape": 0.95,
-        "normalSizeDpi": 175,
-        "bigSizeDpi": 200,
-        "extraSizeDpi": 400,
         "intersectionArea": 0.15
 
     },
@@ -120,9 +102,6 @@
         ],
         "minShape": 0.017,
         "maxShape": 0.95,
-        "normalSizeDpi": 175,
-        "bigSizeDpi": 200,
-        "extraSizeDpi": 400,
         "intersectionArea": 0.15
 
     },
@@ -139,9 +118,6 @@
         ],
         "minShape": 0.017,
         "maxShape": 0.95,
-        "normalSizeDpi": 175,
-        "bigSizeDpi": 200,
-        "extraSizeDpi": 400,
         "intersectionArea": 0.15
 
     },
@@ -158,9 +134,6 @@
         ],
         "minShape": 0.017,
         "maxShape": 0.95,
-        "normalSizeDpi": 175,
-        "bigSizeDpi": 200,
-        "extraSizeDpi": 400,
         "intersectionArea": 0.15
 
     },
@@ -177,9 +150,6 @@
         ],
         "minShape": 0.05,
         "maxShape": 0.95,
-        "normalSizeDpi": 175,
-        "bigSizeDpi": 200,
-        "extraSizeDpi": 400,
         "intersectionArea": 0.07
 
     },
@@ -196,9 +166,6 @@
         ],
         "minShape": 0.05,
         "maxShape": 0.95,
-        "normalSizeDpi": 200,
-        "bigSizeDpi": 200,
-        "extraSizeDpi": 200,
         "intersectionArea": 0.15
     }
 }

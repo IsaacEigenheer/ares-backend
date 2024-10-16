@@ -21,6 +21,7 @@ import cv2
 from ultralytics import YOLO
 import warnings
 from openpyxl import Workbook
+import pdfplumber
 
 
 os.chdir('/python_backend')
@@ -30,10 +31,11 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = YOLO('./Models/newS.pt').to(device)
 
 def calc_size(path):
-    pdf_path = path
-    sz = os.path.getsize(pdf_path)
-    sz = sz/1000000
-    return sz
+    with pdfplumber.open(path) as pdf:
+        width = pdf.pages[0].width
+        height = pdf.pages[0].height
+        area = np.sqrt(int(width * height))
+        return area, height, width
 
 def start(path, config, current_client):
     global pdf_path
@@ -43,16 +45,14 @@ def start(path, config, current_client):
 
     pdf_path = path
     filename_id = (Path(pdf_path)).stem
-    sz = calc_size(path)
+    area, h_src, w_src = calc_size(path)
 
-    if sz > 4:
-        dpi = config['normalSizeDpi']
-
-    elif sz <= 4 and sz > 2:
-        dpi = config['bigSizeDpi']
-
-    elif sz < 2:
-        dpi = config['extraSizeDpi']
+    if area < 1500:
+        dpi = 600
+    elif area >=1500 and area < 3000:
+        dpi = 400
+    elif area >= 3000:
+        dpi = 200
     
     pdf_document = fitz.open(path)
     if pdf_document.page_count > 0:
@@ -61,7 +61,7 @@ def start(path, config, current_client):
         image = first_page.get_pixmap(matrix=fitz.Matrix(scale_factor, scale_factor))
         image.save(f'./images/{filename_id}.png')
         image_path = f'./images/{filename_id}.png'
-        processar_imagem(image_path, config, current_client)
+        processar_imagem(image_path, config, current_client, h_src, w_src)
     
     if current_client != 'HPE' or current_client != 'Caterpillar':
         yoloDetect(filename_id)
@@ -103,13 +103,13 @@ def start(path, config, current_client):
     print('8', flush=True)
 
 
-def processar_imagem(image_path, config, current_client):
+def processar_imagem(image_path, config, current_client, h_src, w_src):
     image = cv2.imread(image_path)
     h, w, c = image.shape
-    detect_lines_and_save(image, os.path.basename(image_path), h, w, config, current_client)
+    detect_lines_and_save(image, os.path.basename(image_path), h, w, config, current_client, h_src, w_src)
 
 
-def detect_lines_and_save(image, image_name, h, w, config, current_client):
+def detect_lines_and_save(image, image_name, h, w, config, current_client, h_src, w_src):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     all_lines = []
     limiares = config['limiares']
@@ -170,19 +170,27 @@ def detect_lines_and_save(image, image_name, h, w, config, current_client):
     for rect in non_overlapping_rectangles:
         x1, y1, x2, y2 = rect
 
-        if (y1 - int(h*0.02)) > 0:
-            y1 = y1 - int(h*0.02)
-            if(y1 - int(h*0.01)) > 0:
-                y1 = y1 - int(h*0.01)
+        if h_src < 1500:
+            w1 = 0.01
+        else:
+            w1 = 0.025
         
-        if(y2 + int(h*0.02)) < h:
-            y2 = y2 + int(h*0.02)
+        if w_src < 1500:
+            w2 = 5
+        else:
+            w2 = 25
 
-        if (x1 - 5) > 0:
-            x1 = x1 - 5
+        if (y1 - int(h*w1)) > 0:
+            y1 = y1 - int(h*w1)
         
-        if (x2 + 5) < w:
-            x2 = x2 + 5
+        if(y2 + int(h*w1)) < h:
+            y2 = y2 + int(h*w1)
+
+        if (x1 - w2) > 0:
+            x1 = x1 - w2
+        
+        if (x2 + w2) < w:
+            x2 = x2 + w2
 
         cropped_image = image[y1:y2, x1:x2]
         output_path = os.path.join("./cropped_images" , f"{t}{image_name}")##################################################################
