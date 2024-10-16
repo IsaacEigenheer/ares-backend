@@ -20,3 +20,4 @@ numba
 selenium
 webdriver_manager
 openpyxl
+pdfplumber
