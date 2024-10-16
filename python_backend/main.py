@@ -48,11 +48,11 @@ def start(path, config, current_client):
     area, h_src, w_src = calc_size(path)
 
     if area < 1500:
-        dpi = 600
-    elif area >=1500 and area < 3000:
         dpi = 400
+    elif area >= 1500 and area < 3000:
+        dpi = 300
     elif area >= 3000:
-        dpi = 200
+        dpi = 175
     
     pdf_document = fitz.open(path)
     if pdf_document.page_count > 0:
@@ -172,9 +172,11 @@ def detect_lines_and_save(image, image_name, h, w, config, current_client, h_src
 
         if h_src < 1500:
             w1 = 0.01
+        elif h_src >=1500 and h_src < 3500:
+            w1 = 0.017
         else:
             w1 = 0.025
-        
+            
         if w_src < 1500:
             w2 = 5
         else:
