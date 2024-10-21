@@ -56,7 +56,7 @@ def start(path, config, current_client, page_):
     
     pdf_document = fitz.open(path)
     if pdf_document.page_count > 0:
-        first_page = pdf_document[page_ + 1]
+        first_page = pdf_document[page_]
         scale_factor = dpi / 72.0
         image = first_page.get_pixmap(matrix=fitz.Matrix(scale_factor, scale_factor))
         image.save(f'./images/{filename_id}.png')
