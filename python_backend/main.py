@@ -539,12 +539,56 @@ def make_finalSheet(current_client, filename_id):
             wb_destino.save(arquivo_excel_path)
             print('6', flush=True)
             
+    def whirlpoolConvert(filename_id):
+        caminho_pasta_excel = 'Excel'
+        excel_final = 'generic_spreadsheet.xlsx'
+        arquivos_excel = [arquivo for arquivo in os.listdir(caminho_pasta_excel) if arquivo.endswith(".xlsx")]
+        wb_destino = load_workbook(excel_final)
+        
+        for arquivo in arquivos_excel:
+            if filename_id in arquivo:
+                wb_origem = load_workbook(f'{caminho_pasta_excel}/{arquivo}')
+                table_name = 'tabela'
 
+                if arquivo != 'planilha_final.xlsx':
+                    df_paracsv = pd.read_excel(os.path.join(caminho_pasta_excel, arquivo))
+
+                    # Verifica a coluna com o nome "WHIRLPOOL PART NUMBER", considerando 'i' como '1'
+                    column_name = None
+                    for col in df_paracsv.columns:
+                        normalized_col = col.lower().replace(' ', '').replace('i', '1')
+                        if 'whirlpoolpartnumber' in normalized_col:
+                            column_name = col
+                            break
+
+                    # Se a coluna for encontrada, processa os itens
+                    if column_name:
+                        df_paracsv[column_name] = df_paracsv[column_name].astype(str).str.replace(' ', '').str.replace('i', '1', case=False)
+
+                    # Salva como CSV
+                    file_path_csv = 'arquivo.csv'
+                    df_paracsv.to_csv(file_path_csv, index=False)
+
+                    for sheet_name in wb_origem.sheetnames:
+                        ws_origem = wb_origem[sheet_name]
+                        ws_destino = wb_destino.create_sheet(title=table_name)
+                        for row in ws_origem.iter_rows(min_row=1, max_row=1, values_only=True):
+                            ws_destino.append(row)
+
+                        for row in ws_origem.iter_rows(min_row=2, values_only=True):
+                            ws_destino.append(row)
+
+        arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
+        print(f'ExcelFinal {arquivo_excel_path}', flush=True)
+        wb_destino.save(arquivo_excel_path)
+        print('6', flush=True)
         
 
     warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl.styles.stylesheet")
     if current_client == 'Caterpillar':
         convert(filename_id)
+    elif current_client == 'Whirlpool':
+        whirlpoolConvert(filename_id)
     else:
         generic_convert(filename_id)
 
