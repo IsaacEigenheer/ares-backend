@@ -498,13 +498,13 @@ def make_finalSheet(current_client, filename_id):
                         for row in ws_origem.iter_rows(min_row=2, values_only=True):
                             ws_destino.append(row)
 
-            arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
-            print(f'ExcelFinal {arquivo_excel_path}', flush=True)
-            wb_destino.save(arquivo_excel_path)
-            df_final = pd.read_excel(arquivo_excel_path, sheet_name='DADOS')    
-            df_final.at[3, 'X'] = c
-            df_final.at[18, 'X'] = p
-            print('6', flush=True)
+                arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
+                print(f'ExcelFinal {arquivo_excel_path}', flush=True)
+                wb_destino.save(arquivo_excel_path)
+                df_final = pd.read_excel(arquivo_excel_path, sheet_name='DADOS')    
+                df_final.at[3, 'X'] = c
+                df_final.at[18, 'X'] = p
+                print('6', flush=True)
 
             
             
@@ -534,10 +534,10 @@ def make_finalSheet(current_client, filename_id):
                         for row in ws_origem.iter_rows(min_row=2, values_only=True):
                             ws_destino.append(row)
 
-            arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
-            print(f'ExcelFinal {arquivo_excel_path}', flush=True)
-            wb_destino.save(arquivo_excel_path)
-            print('6', flush=True)
+                arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
+                print(f'ExcelFinal {arquivo_excel_path}', flush=True)
+                wb_destino.save(arquivo_excel_path)
+                print('6', flush=True)
             
     def whirlpoolConvert(filename_id):
         caminho_pasta_excel = 'Excel'
@@ -591,10 +591,10 @@ def make_finalSheet(current_client, filename_id):
                         for row in df_paracsv.itertuples(index=False):
                             ws_destino.append(row)
 
-            arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
-            print(f'ExcelFinal {arquivo_excel_path}', flush=True)
-            wb_destino.save(arquivo_excel_path)
-            print('6', flush=True)
+                arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
+                print(f'ExcelFinal {arquivo_excel_path}', flush=True)
+                wb_destino.save(arquivo_excel_path)
+                print('6', flush=True)
         
 
     warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl.styles.stylesheet")
