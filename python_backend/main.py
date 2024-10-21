@@ -37,7 +37,7 @@ def calc_size(path):
         area = np.sqrt(int(width * height))
         return area, height, width
 
-def start(path, config, current_client):
+def start(path, config, current_client, page_):
     global pdf_path
     global filename_id
 
@@ -56,7 +56,7 @@ def start(path, config, current_client):
     
     pdf_document = fitz.open(path)
     if pdf_document.page_count > 0:
-        first_page = pdf_document[0]
+        first_page = pdf_document[page_ + 1]
         scale_factor = dpi / 72.0
         image = first_page.get_pixmap(matrix=fitz.Matrix(scale_factor, scale_factor))
         image.save(f'./images/{filename_id}.png')
@@ -553,37 +553,30 @@ def make_finalSheet(current_client, filename_id):
                 if arquivo != 'planilha_final.xlsx':
                     df_paracsv = pd.read_excel(os.path.join(caminho_pasta_excel, arquivo))
 
-                    # Inicializa a variável para o nome da coluna
                     column_name = None
 
-                    # Procura na tabela inteira pela linha que contém "WHIRLPOOL PART NUMBER"
                     for index in range(len(df_paracsv)):
                         for col in df_paracsv.columns:
                             normalized_value = str(df_paracsv.at[index, col]).lower().replace(' ', '').replace('i', '1').replace('l', '1')
 
                             if 'wh1r1poo1partnumber' == normalized_value:
-                                column_name = col  # Captura o nome da coluna
-                                break  # Sai do loop após encontrar o cabeçalho
-                        if column_name:  # Sai do loop se a coluna foi encontrada
+                                column_name = col 
+                                break 
+                        if column_name:  
                             break
 
-                    # Se a coluna foi encontrada, aplica a formatação a toda a coluna
                     if column_name and column_name in df_paracsv.columns:
                         df_paracsv[column_name] = df_paracsv[column_name].astype(str).str.replace(' ', '').str.replace('i', '1', case=False).str.replace('l', '1', case=False)
 
-                    # Salva como CSV
                     file_path_csv = 'arquivo.csv'
                     df_paracsv.to_csv(file_path_csv, index=False)
 
-                    # Processa as planilhas do Excel
                     for sheet_name in wb_origem.sheetnames:
                         ws_origem = wb_origem[sheet_name]
                         ws_destino = wb_destino.create_sheet(title=table_name)
 
-                        # Adiciona a linha do cabeçalho
                         ws_destino.append(list(df_paracsv.columns))
 
-                        # Adiciona os valores formatados
                         for row in df_paracsv.itertuples(index=False):
                             ws_destino.append(row)
 
@@ -610,5 +603,5 @@ if __name__ == '__main__':
     with open('./config.json') as json_data:
         data = json.load(json_data,)
         config = data['customers'][arg2]
-
-    start(arg1, config, arg2)
+    arg3 = sys.argv[3]
+    start(arg1, config, arg2, arg3)
