@@ -40,7 +40,7 @@ def calc_size(path):
 def start(path, config, current_client, page_):
     global pdf_path
     global filename_id
-
+    page_ = int(page_)
     print('1', flush=True)
 
     pdf_path = path
@@ -56,7 +56,7 @@ def start(path, config, current_client, page_):
     
     pdf_document = fitz.open(path)
     if pdf_document.page_count > 0:
-        first_page = pdf_document[page_]
+        first_page = pdf_document[page_ - 1]
         scale_factor = dpi / 72.0
         image = first_page.get_pixmap(matrix=fitz.Matrix(scale_factor, scale_factor))
         image.save(f'./images/{filename_id}.png')
