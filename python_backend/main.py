@@ -560,10 +560,8 @@ def make_finalSheet(current_client, filename_id):
                     for index in range(len(df_paracsv)):
                         for col in df_paracsv.columns:
                             normalized_value = str(df_paracsv.at[index, col]).lower().replace(' ', '').replace('i', '1').replace('l', '1')
-                            print(f'Checando: {normalized_value}')  # Debug
 
                             if 'wh1r1poo1partnumber' == normalized_value:
-                                print('VALOR ENCONTRADO na coluna:', col)  # Debug
                                 column_name = col  # Captura o nome da coluna
                                 break  # Sai do loop após encontrar o cabeçalho
                         if column_name:  # Sai do loop se a coluna foi encontrada
@@ -571,9 +569,7 @@ def make_finalSheet(current_client, filename_id):
 
                     # Se a coluna foi encontrada, aplica a formatação a toda a coluna
                     if column_name and column_name in df_paracsv.columns:
-                        print(f'Formatando coluna: {column_name}')  # Debug
                         df_paracsv[column_name] = df_paracsv[column_name].astype(str).str.replace(' ', '').str.replace('i', '1', case=False).str.replace('l', '1', case=False)
-                        print(df_paracsv[column_name])  # Debug para visualizar os valores formatados
 
                     # Salva como CSV
                     file_path_csv = 'arquivo.csv'
