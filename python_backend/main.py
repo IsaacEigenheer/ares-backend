@@ -544,7 +544,7 @@ def make_finalSheet(current_client, filename_id):
         excel_final = 'generic_spreadsheet.xlsx'
         arquivos_excel = [arquivo for arquivo in os.listdir(caminho_pasta_excel) if arquivo.endswith(".xlsx")]
         wb_destino = load_workbook(excel_final)
-        
+
         for arquivo in arquivos_excel:
             if filename_id in arquivo:
                 wb_origem = load_workbook(f'{caminho_pasta_excel}/{arquivo}')
@@ -553,29 +553,42 @@ def make_finalSheet(current_client, filename_id):
                 if arquivo != 'planilha_final.xlsx':
                     df_paracsv = pd.read_excel(os.path.join(caminho_pasta_excel, arquivo))
 
-                    # Verifica a coluna com o nome "WHIRLPOOL PART NUMBER", considerando 'i' como '1'
+                    # Inicializa a variável para o nome da coluna
                     column_name = None
-                    for col in df_paracsv.columns:
-                        normalized_col = col.lower().replace(' ', '').replace('i', '1')
-                        if 'whirlpoolpartnumber' in normalized_col:
-                            column_name = col
+
+                    # Procura na tabela inteira pela linha que contém "WHIRLPOOL PART NUMBER"
+                    for index in range(len(df_paracsv)):
+                        for col in df_paracsv.columns:
+                            normalized_value = str(df_paracsv.at[index, col]).lower().replace(' ', '').replace('i', '1').replace('l', '1')
+                            print(f'Checando: {normalized_value}')  # Debug
+
+                            if 'wh1r1poo1partnumber' == normalized_value:
+                                print('VALOR ENCONTRADO na coluna:', col)  # Debug
+                                column_name = col  # Captura o nome da coluna
+                                break  # Sai do loop após encontrar o cabeçalho
+                        if column_name:  # Sai do loop se a coluna foi encontrada
                             break
 
-                    # Se a coluna for encontrada, processa os itens
-                    if column_name:
-                        df_paracsv[column_name] = df_paracsv[column_name].astype(str).str.replace(' ', '').str.replace('i', '1', case=False)
+                    # Se a coluna foi encontrada, aplica a formatação a toda a coluna
+                    if column_name and column_name in df_paracsv.columns:
+                        print(f'Formatando coluna: {column_name}')  # Debug
+                        df_paracsv[column_name] = df_paracsv[column_name].astype(str).str.replace(' ', '').str.replace('i', '1', case=False).str.replace('l', '1', case=False)
+                        print(df_paracsv[column_name])  # Debug para visualizar os valores formatados
 
                     # Salva como CSV
                     file_path_csv = 'arquivo.csv'
                     df_paracsv.to_csv(file_path_csv, index=False)
 
+                    # Processa as planilhas do Excel
                     for sheet_name in wb_origem.sheetnames:
                         ws_origem = wb_origem[sheet_name]
                         ws_destino = wb_destino.create_sheet(title=table_name)
-                        for row in ws_origem.iter_rows(min_row=1, max_row=1, values_only=True):
-                            ws_destino.append(row)
 
-                        for row in ws_origem.iter_rows(min_row=2, values_only=True):
+                        # Adiciona a linha do cabeçalho
+                        ws_destino.append(list(df_paracsv.columns))
+
+                        # Adiciona os valores formatados
+                        for row in df_paracsv.itertuples(index=False):
                             ws_destino.append(row)
 
         arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
