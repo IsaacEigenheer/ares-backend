@@ -100,8 +100,8 @@
             [250, 255],
             [1, 0]
         ],
-        "minShape": 0.017,
-        "maxShape": 0.95,
+        "minShape": 0.022,
+        "maxShape": 0.90,
         "intersectionArea": 0.15
 
     },
