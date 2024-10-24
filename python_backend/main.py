@@ -683,8 +683,6 @@ def make_finalSheet(current_client, filename_id):
                             formatted_item = format_value(item)
                             proc_data[1].append(formatted_item)
 
-                    print(f'Tamanho array: {len(proc_data[0])}, {len(proc_data[1])}')
-
                     if (len(proc_data[0]) or len(proc_data[1]) == 0):
                         def format_value(item):
                             match = re.match(r'^\s*(\d+)([.,]\d+)?\s*[a-zA-Z]*', item)
@@ -710,7 +708,6 @@ def make_finalSheet(current_client, filename_id):
                         for col in df_paracsv.columns:
                             normalized_col = str(col).lower().replace(' ', '').replace('i', '1').replace('l', '1')
                             normalized_columns[col] = normalized_col
-                            print(f'colname: {normalized_col}')
                             if 'spoo1name' in normalized_col:
                                 spool_column_name = col
 
@@ -726,8 +723,6 @@ def make_finalSheet(current_client, filename_id):
                                 if match:
                                     bitola = match.group(1)  # Primeiro grupo: a bitola
                                     cor = match.group(2)      # Segundo grupo: a cor
-                                    print(f'bitola extraida: {bitola}')
-                                    print(f'cor extrainda: {cor}')
 
                                     # Processando a cor
                                     cor_mapeada = {
@@ -755,10 +750,6 @@ def make_finalSheet(current_client, filename_id):
                                         proc_data[0].append(cor_final)
                                     if formatted_bitola:
                                         proc_data[1].append(formatted_bitola)
-
-                        # Exibindo o resultado formatado
-                        for cor, bitola in zip(proc_data[0], proc_data[1]):
-                            print(f'{bitola}; {cor}')
 
                     #CONECTOR VERIFICAÇÃO
                     column_name = None
@@ -857,7 +848,6 @@ def make_finalSheet(current_client, filename_id):
                             bitola_sheet = ws_source.cell(row=row, column=5).value 
                             item = ws_source.cell(row=row, column=1).value  
                             awg_value = mm2_to_awg(proc_data[1][x])
-                            print('AWG VALUE: ', awg_value)
                             if proc_data[0][x] == cor_sheet and (proc_data[1][x] == bitola_sheet or awg_value == bitola_sheet):
                                 proc_data[2].append(item)
                                 break
