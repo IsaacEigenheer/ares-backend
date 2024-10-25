@@ -736,12 +736,13 @@ def make_finalSheet(current_client, filename_id):
                             df_paracsv[spool_column_name] = df_paracsv[spool_column_name].astype(str).str.replace(' ', '')
 
                             for item in df_paracsv[spool_column_name]:
-                                # Usando regex para extrair bitola e cor
-                                match = re.search(r'(\d+(?:\.\d+)?)(?:\s*/\s*|\s+|)([A-Z]+)', item)
-                                
+                                # Usando regex para extrair bitola, cor e temperatura
+                                match = re.search(r'(\d+(?:\.\d+)?)(?:\s*/\s*|\s+|)([A-Z]+)(?:\s+|/)(\d+)', item)
+
                                 if match:
                                     bitola = match.group(1)  # Primeiro grupo: a bitola
                                     cor = match.group(2)      # Segundo grupo: a cor
+                                    temperatura = match.group(3)  # Terceiro grupo: a temperatura
 
                                     # Processando a cor
                                     cor_mapeada = {
@@ -770,6 +771,8 @@ def make_finalSheet(current_client, filename_id):
                                         proc_data[0].append(cor_final)
                                     if formatted_bitola:
                                         proc_data[1].append(formatted_bitola)
+                                    if temperatura:
+                                        proc_data[3].append(temperatura)  # Adicionando a temperatura
 
                     #CONECTOR VERIFICAÇÃO
                     column_name = None
