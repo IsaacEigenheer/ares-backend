@@ -546,7 +546,7 @@ def make_finalSheet(current_client, filename_id):
         wb_destino = load_workbook(excel_final)
 
         for arquivo in arquivos_excel:
-            proc_data = [[], [], []]
+            proc_data = [[], [], [], []]
             if filename_id in arquivo:
                 wb_origem = load_workbook(f'{caminho_pasta_excel}/{arquivo}')
                 table_name = 'tabela'
@@ -604,6 +604,24 @@ def make_finalSheet(current_client, filename_id):
                             df_paracsv[column_name] = df_paracsv[column_name].astype(str).str.replace(' ', '').str.replace('i', '1', case=False).str.replace('l', '1', case=False)
 
                     
+                    #TEMPERATURA VERIFICAÇÃO
+                    normalized_columns = {}
+                    column_name = None
+
+                    for col in df_paracsv.columns:
+                        normalized_col = str(col).lower().replace(' ', '').replace('i', '1').replace('l', '1')
+                        normalized_columns[col] = normalized_col
+                        
+                        if 'c1ass' in normalized_col:
+                            column_name = col 
+
+                        if column_name:
+                            df_paracsv[column_name] = df_paracsv[column_name].astype(str).str.replace(' ', '').str.replace(r'\.\d+', '', regex=True)
+                    if column_name:
+                        for item in df_paracsv[column_name]:
+                            proc_data[3].append(item)
+
+
                     #COR DO CABO VERIFICAÇÃO
                     normalized_columns = {}
                     column_name = None
@@ -643,7 +661,8 @@ def make_finalSheet(current_client, filename_id):
                                 item = 'VD/AM'
                             elif item == 'VIOLET':
                                 item = 'VI'
-
+                            elif item == 'LT BLUE':
+                                item = 'AZ CL'
 
                             proc_data[0].append(item)
 
@@ -737,7 +756,8 @@ def make_finalSheet(current_client, filename_id):
                                         'RED': 'VM',
                                         'PINK': 'RO',
                                         'GREEN/YELLOW': 'VD/AM',
-                                        'VIOLET': 'VI'
+                                        'VIOLET': 'VI',
+                                        'LT BLUE': 'AZ CL'
                                     }
 
                                     cor_final = cor_mapeada.get(cor, None)
@@ -821,6 +841,7 @@ def make_finalSheet(current_client, filename_id):
                             '0,05 mm²': '30 AWG',
                             '0,08 mm²': '28 AWG',
                             '0,14 mm²': '26 AWG',
+                            '0,20 mm²': '24 AWG',
                             '0,25 mm²': '24 AWG',
                             '0,32 mm²': '22 AWG',
                             '0,34 mm²': '22 AWG',
@@ -842,19 +863,64 @@ def make_finalSheet(current_client, filename_id):
                         
                         return conversion_table.get(mm2, None)
 
+                    def main_cables(mm2, color, temp):
+                        find_cable = {
+                            ('0,32 mm²', 'PR', '105') : '1022200802',
+                            ('0,32 mm²', 'BR', '105') : '1022200402',
+                            ('0,32 mm²', 'VM', '105') : '1022201101',
+                            ('0,32 mm²', 'AZ', '105') : '1022200201',
+                            ('0,32 mm²', 'LJ', '105') : '1022200600',
+                            ('0,32 mm²', 'MR', '105') : '1022200701',
+                            ('0,32 mm²', 'RO', '105') : '1022200900',
+                            ('0,32 mm²', 'AM', '105') : '1022200101',
+                            ('0,32 mm²', 'VD', '105') : '1022201001',
+                            ('0,32 mm²', 'CZ', '105') : '1022200501',
+
+                            ('0,20 mm²', 'MR', '105') : '1022400701',
+                            ('0,20 mm²', 'VM', '105') : '1022401103',
+                            ('0,20 mm²', 'PR', '105') : '1022400804',
+                            ('0,20 mm²', 'RO', '105') : '1022400900',
+                            ('0,20 mm²', 'AM', '105') : '1022400102',
+                            ('0,20 mm²', 'AZ', '105') : '1022400201',
+                            ('0,20 mm²', 'CZ', '105') : '1022400501',
+                            ('0,20 mm²', 'LJ', '105') : '1022400601',
+                            ('0,20 mm²', 'BR', '105') : '1022400401',
+                            ('0,20 mm²', 'VD', '105') : '1022400100',
+
+
+                            ('0,50 mm²', 'AZ', '105') : '1020500215',
+                            ('0,50 mm²', 'VM', '105') : '1020501109',
+                            ('0,50 mm²', 'MR', '105') : '1020500710',
+                            ('0,50 mm²', 'VD/AM', '70') : '1010504400',
+                            ('0,50 mm²', 'BR', '105') : '1020500410',
+                            ('0,50 mm²', 'AZ', '70') : '125053',
+                            ('0,50 mm²', 'BR', '70') : '125027',
+                            ('0,50 mm²', 'VM', '70') : '125032',
+                            ('0,50 mm²', 'PR', '70') : '125004',
+
+                            ('0,75 mm²', 'VD/AM', '70') : '125076'
+
+                        }
+                        return find_cable.get((mm2, color, temp), None)
+                        
                     for x in range(len(proc_data[0])):
-                        for row in range(2, ws_source.max_row + 1):
-                            cor_sheet = ws_source.cell(row=row, column=4).value  
-                            bitola_sheet = ws_source.cell(row=row, column=5).value 
-                            item = ws_source.cell(row=row, column=1).value  
-                            awg_value = mm2_to_awg(proc_data[1][x])
-                            if proc_data[0][x] == cor_sheet and (proc_data[1][x] == bitola_sheet or awg_value == bitola_sheet):
-                                proc_data[2].append(item)
-                                break
-                            else:
-                                item = None
-                        if item == None:
-                            proc_data[2].append('Item não encontrado!')
+                        cable = main_cables(proc_data[1][x], proc_data[0][x], proc_data[3][x])
+                        if cable:
+                            proc_data[2].append(cable)
+                        else:
+                            for row in range(2, ws_source.max_row + 1):
+                                temp_sheet =  ws_source.cell(row=row, column=3).value
+                                cor_sheet = ws_source.cell(row=row, column=4).value  
+                                bitola_sheet = ws_source.cell(row=row, column=5).value
+                                item = ws_source.cell(row=row, column=1).value  
+                                awg_value = mm2_to_awg(proc_data[1][x])
+                                if proc_data[0][x] == cor_sheet and (proc_data[1][x] == bitola_sheet or awg_value == bitola_sheet) and (proc_data[3][x] + '°C') == temp_sheet:
+                                    proc_data[2].append(item)
+                                    break
+                                else:
+                                    item = None
+                            if item == None:
+                                proc_data[2].append('Item não encontrado!')
                                 
                     if "Item" in wb_destino.sheetnames:
                         ws_item = wb_destino["Item"]
