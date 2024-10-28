@@ -727,7 +727,6 @@ def make_finalSheet(current_client, filename_id):
                         for col in df_paracsv.columns:
                             normalized_col = str(col).lower().replace(' ', '').replace('i', '1').replace('l', '1')
                             normalized_columns[col] = normalized_col
-                            print(f'Normalized_col: {normalized_col}')
                             if 'spoo1name' in normalized_col:
                                 spool_column_name = col
 
@@ -748,21 +747,16 @@ def make_finalSheet(current_client, filename_id):
 
                         # Se a coluna foi encontrada
                         if spool_column_name:
-                            print('Valor spool name encontrado')
                             # Normalizando os dados na coluna
                             df_paracsv[spool_column_name] = df_paracsv[spool_column_name].astype(str).str.replace(' ', '')
 
                             for item in df_paracsv[spool_column_name]:
                                 # Usando regex para extrair bitola e cor
                                 match = re.search(r'(\d+(?:\.\d+)?)(?:\s*/\s*|\s+|)([A-Z]+)(?:\s+|/)(\d+)', item)
-                                print(f'Item: {item}')
                                 if match:
                                     bitola = match.group(1)  # Primeiro grupo: a bitola
                                     cor = match.group(2)      # Segundo grupo: a cor
                                     temperatura = match.group(3)  # Terceiro grupo: a temperatura
-
-                                    print(f'Bitola: {bitola}, Cor: {cor}, Temp: {temperatura}')
-
                                     # Processando a cor
                                     cor_mapeada = {
                                         'YELLOW': 'AM',
@@ -928,9 +922,6 @@ def make_finalSheet(current_client, filename_id):
                         }
                         return find_cable.get((mm2, color, temp), None)
                     
-                    print(f'Cores({len(proc_data[0])}): {proc_data[0]} \
-                    \nBitolas({len(proc_data[1])}): {proc_data[1]} \
-                    \nTemps({len(proc_data[3])}): {proc_data[3]}')
 
                     for x in range(len(proc_data[0])):
                         cable = main_cables((proc_data[1][x]), (proc_data[0][x]), (proc_data[3][x]))
