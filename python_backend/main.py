@@ -643,7 +643,7 @@ def make_finalSheet(current_client, filename_id):
                                 item = 'AZ'
                             elif item == 'WHITE':
                                 item = 'BR'
-                            elif item == 'GRAY':
+                            elif item == 'GRAY' or item == 'GREY':
                                 item = 'CZ'
                             elif item == 'ORANGE':
                                 item = 'LJ'
@@ -661,7 +661,7 @@ def make_finalSheet(current_client, filename_id):
                                 item = 'VD/AM'
                             elif item == 'VIOLET':
                                 item = 'VI'
-                            elif item == 'LT BLUE':
+                            elif item == 'LT BLUE' or item == 'LTBLUE':
                                 item = 'AZ CL'
 
                             proc_data[0].append(item)
@@ -727,22 +727,41 @@ def make_finalSheet(current_client, filename_id):
                         for col in df_paracsv.columns:
                             normalized_col = str(col).lower().replace(' ', '').replace('i', '1').replace('l', '1')
                             normalized_columns[col] = normalized_col
+                            print(f'Normalized_col: {normalized_col}')
                             if 'spoo1name' in normalized_col:
                                 spool_column_name = col
 
+                            if spool_column_name and spool_column_name in df_paracsv.columns:
+                                        df_paracsv[spool_column_name] = df_paracsv[spool_column_name].astype(str).str.replace(' ', '')
+
+                        if spool_column_name == None:
+                            for index in range(len(df_paracsv)):
+                                for col in df_paracsv.columns:
+                                    normalized_value = str(df_paracsv.at[index, col]).lower().replace(' ', '').replace('i', '1').replace('l', '1')
+                                    if 'spoo1name' in normalized_value:
+                                        spool_column_name = col
+                                        
+                            
+                                    if spool_column_name and spool_column_name in df_paracsv.columns:
+                                        df_paracsv[spool_column_name] = df_paracsv[spool_column_name].astype(str).str.replace(' ', '')
+
+
                         # Se a coluna foi encontrada
                         if spool_column_name:
+                            print('Valor spool name encontrado')
                             # Normalizando os dados na coluna
                             df_paracsv[spool_column_name] = df_paracsv[spool_column_name].astype(str).str.replace(' ', '')
 
                             for item in df_paracsv[spool_column_name]:
-                                # Usando regex para extrair bitola, cor e temperatura
+                                # Usando regex para extrair bitola e cor
                                 match = re.search(r'(\d+(?:\.\d+)?)(?:\s*/\s*|\s+|)([A-Z]+)(?:\s+|/)(\d+)', item)
-
+                                print(f'Item: {item}')
                                 if match:
                                     bitola = match.group(1)  # Primeiro grupo: a bitola
                                     cor = match.group(2)      # Segundo grupo: a cor
                                     temperatura = match.group(3)  # Terceiro grupo: a temperatura
+
+                                    print(f'Bitola: {bitola}, Cor: {cor}, Temp: {temperatura}')
 
                                     # Processando a cor
                                     cor_mapeada = {
@@ -750,6 +769,7 @@ def make_finalSheet(current_client, filename_id):
                                         'BLUE': 'AZ',
                                         'WHITE': 'BR',
                                         'GRAY': 'CZ',
+                                        'GREY': 'CZ',
                                         'ORANGE': 'LJ',
                                         'BROWN': 'MR',
                                         'BLACK': 'PR',
@@ -758,7 +778,8 @@ def make_finalSheet(current_client, filename_id):
                                         'PINK': 'RO',
                                         'GREEN/YELLOW': 'VD/AM',
                                         'VIOLET': 'VI',
-                                        'LT BLUE': 'AZ CL'
+                                        'LT BLUE': 'AZ CL',
+                                        'LTBLUE' : 'AZ CL'
                                     }
 
                                     cor_final = cor_mapeada.get(cor, None)
@@ -773,6 +794,7 @@ def make_finalSheet(current_client, filename_id):
                                         proc_data[1].append(formatted_bitola)
                                     if temperatura:
                                         proc_data[3].append(temperatura)  # Adicionando a temperatura
+
 
                     #CONECTOR VERIFICAÇÃO
                     column_name = None
@@ -905,9 +927,13 @@ def make_finalSheet(current_client, filename_id):
 
                         }
                         return find_cable.get((mm2, color, temp), None)
-                        
+                    
+                    print(f'Cores({len(proc_data[0])}): {proc_data[0]} \
+                    \nBitolas({len(proc_data[1])}): {proc_data[1]} \
+                    \nTemps({len(proc_data[3])}): {proc_data[3]}')
+
                     for x in range(len(proc_data[0])):
-                        cable = main_cables(proc_data[1][x], proc_data[0][x], proc_data[3][x])
+                        cable = main_cables((proc_data[1][x]), (proc_data[0][x]), (proc_data[3][x]))
                         if cable:
                             proc_data[2].append(cable)
                         else:
