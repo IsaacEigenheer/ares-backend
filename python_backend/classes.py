@@ -13,15 +13,14 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from openpyxl import load_workbook
 from shutil import copyfile
 import pandas as pd
 import re
-import openpyxl
-from typing import Tuple
+from openpyxl import load_workbook
+
 
 class Detect_Image():
-    def __init__(self, path: str, config: dict, current_client: str, page: str):
+    def __init__(self, path, config, current_client, page):
         print('1', flush=True)
         self.pdf_path = path
         self.config = config
@@ -30,14 +29,14 @@ class Detect_Image():
         self.filename_id = (Path(self.pdf_path)).stem
 
 
-    def calcPdfSize(self) -> Tuple[float, float, float]:
+    def calcPdfSize(self):
         with pdfplumber.open(self.pdf_path) as pdf:
             width_source = pdf.pages[0].width
             height_source = pdf.pages[0].height
             area = np.sqrt(int(width_source * height_source))
             return area, height_source, width_source
 
-    def calcDpi(self) -> int:
+    def calcDpi(self):
         if self.area < 1500:
             return 400
         elif self.area >= 1500 and self.area < 3000:
@@ -45,7 +44,7 @@ class Detect_Image():
         elif self.area >= 3000:
             return 175
     
-    def calcParameters(self) -> str:
+    def calcParameters(self):
         pdf_document = fitz.open(self.pdf_path)
         if pdf_document.page_count > 0:
             first_page = pdf_document[self.page - 1]
@@ -55,13 +54,13 @@ class Detect_Image():
             pdf_image_path = f'./images/{self.filename_id}.png'
             return pdf_image_path
     
-    def processarImagem(self) -> Tuple[np.array, float, float, str]:
+    def processarImagem(self):
         image_src = cv2.imread(self.pdf_image_path)
         height_img, width_img, _ = image_src.shape
         image_name = os.path.basename(self.pdf_image_path)
         return image_src, height_img, width_img, image_name
     
-    def detect_lines_and_save(self) -> Tuple[np.array, int, float, float]:
+    def detect_lines_and_save(self):
         gray = cv2.cvtColor(self.image_src, cv2.COLOR_BGR2GRAY)
         all_lines = []
         limiares = self.config['limiares']
@@ -109,7 +108,7 @@ class Detect_Image():
 
     @staticmethod
     @njit
-    def calcAll_rect(lines_horizontal: np.array, tolerancia_: float, height_img: float, minimum: int) -> np.array:
+    def calcAll_rect(lines_horizontal, tolerancia_, height_img, minimum):
         all_rect = []
         for i, line_h1 in enumerate(lines_horizontal):
             x1, y1, x2, y2 = line_h1[0]
@@ -175,7 +174,7 @@ class Detect_Image():
     
     @staticmethod
     @njit
-    def processamento_retangulos(new_rect: np.array, intersectionArea: float) -> np.array:
+    def processamento_retangulos(new_rect, intersectionArea):
         non_overlapping_rectangles = []
         for rect1 in new_rect:
             for rect2 in new_rect:
@@ -249,7 +248,7 @@ class Detect_Image():
         cv2.imwrite(output_path, self.image_src)
 
 class Convert_Excel():
-    def __init__(self, current_client: str, filename_id: str):
+    def __init__(self, current_client, filename_id):
         print('4', flush=True)
         self.caminhos_arquivos = []
         if current_client != 'HPE' and current_client != 'Whirlpool':
@@ -357,7 +356,7 @@ class Convert_Excel():
 
 class Final_Sheet():
     print('5', flush=True)
-    def __init__(self, current_client: str, filename_id: str):
+    def __init__(self, current_client, filename_id):
         self.current_client = current_client
         self.filename_id = filename_id
     
@@ -758,7 +757,7 @@ class Final_Sheet():
                         for row in df_paracsv.itertuples(index=False):
                             ws_destino.append(row)
 
-                    wb_source = openpyxl.load_workbook('./Cabos-Whirlpool.xlsx')
+                    wb_source = load_workbook('./Cabos-Whirlpool.xlsx')
                     ws_source = wb_source.active
 
                     #VERIFICANDO CABOS POR COR E BITOLA
@@ -858,7 +857,7 @@ class Final_Sheet():
                 print('6', flush=True)
 
 class Delete_Files():
-    def __init__(self, contain_finalSheet: bool, path: str, filename_id: str):
+    def __init__(self, contain_finalSheet, path, filename_id):
         self.contain_finalSheet = contain_finalSheet
         self.path = path
         self.filename_id = filename_id
