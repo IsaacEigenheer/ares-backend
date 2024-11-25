@@ -3,6 +3,7 @@
 /node_modules
 /build
 /enviroment
+/obsoleto
 # Logs
 logs
 *.log
