@@ -22,6 +22,7 @@ from typing import Tuple
 
 class Detect_Image():
     def __init__(self, path: str, config: dict, current_client: str, page: str):
+        print('1', flush=True)
         self.pdf_path = path
         self.config = config
         self.current_client = current_client
