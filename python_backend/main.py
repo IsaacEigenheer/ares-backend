@@ -7,6 +7,8 @@ import cv2
 from ultralytics import YOLO
 import warnings
 
+os.chdir('/python_backend')
+
 from classes import Detect_Image
 from classes import Convert_Excel
 from classes import Final_Sheet
