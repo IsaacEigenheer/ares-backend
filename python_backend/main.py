@@ -84,7 +84,7 @@ def excel(current_client, filename_id):
     else:
         final_sheet.generic_convert()
 
-def deleteFiles(path, filename_id, final_sheet=False):
+def deleteFiles_(path, filename_id, final_sheet=False):
     delet = Delete_Files(final_sheet, path, filename_id)
     delet.deleteFiles()
 
@@ -107,13 +107,35 @@ if __name__ == '__main__':
     
     excel(detection.current_client, detection.filename_id)
 
-    print('8', flush = True)
+    print('7', flush=True)
 
-    deleteFiles('cropped_images', detection.filename_id)
-    deleteFiles('crops2', detection.filename_id)
-    deleteFiles('Excel', detection.filename_id, True)
-    deleteFiles('processed_images', detection.filename_id)
-    deleteFiles('images', detection.filename_id)
+    if os.path.exists('cropped_images'):
+        for file in os.listdir('cropped_images'):
+            if detection.filename_id in file:
+                os.remove(f'cropped_images/{file}')
+    
+    if os.path.exists('./crops2'):
+        for file in os.listdir('./crops2'):
+            if detection.filename_id in file:
+                os.remove(f'./crops2/{file}')
 
-    print('8', flush = True)
+    if os.path.exists('Excel'):
+        for file in os.listdir('Excel'):
+            if detection.filename_id in file:
+                if 'planilha_final' not in file:
+                    os.remove(os.path.join('Excel', file))
+
+    
+    if os.path.exists('processed_images'):
+        for file in os.listdir('processed_images'):
+            if detection.filename_id in file:
+                os.remove(os.path.join('processed_images', file))
+
+    if os.path.exists('images'):
+        for file in os.listdir('images'):
+            if detection.filename_id in file:
+                os.remove(os.path.join('images', file))
+
+
+    print('8', flush=True)
 
