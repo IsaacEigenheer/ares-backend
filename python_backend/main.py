@@ -109,11 +109,11 @@ if __name__ == '__main__':
 
     print('7', flush = True)
 
-    deleteFiles('./cropped_images', detection.filename_id)
-    deleteFiles('./crops2', detection.filename_id)
-    deleteFiles('./Excel', detection.filename_id, True)
-    deleteFiles('./processed_images', detection.filename_id)
-    deleteFiles('./images', detection.filename_id)
+    deleteFiles('cropped_images', detection.filename_id)
+    deleteFiles('crops2', detection.filename_id)
+    deleteFiles('Excel', detection.filename_id, True)
+    deleteFiles('processed_images', detection.filename_id)
+    deleteFiles('images', detection.filename_id)
 
     print('8', flush = True)
 
