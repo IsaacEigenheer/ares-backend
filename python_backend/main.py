@@ -107,7 +107,7 @@ if __name__ == '__main__':
     
     excel(detection.current_client, detection.filename_id)
 
-    print('7', flush = True)
+    print('8', flush = True)
 
     deleteFiles('cropped_images', detection.filename_id)
     deleteFiles('crops2', detection.filename_id)
