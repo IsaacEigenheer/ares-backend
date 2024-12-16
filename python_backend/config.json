@@ -18,7 +18,7 @@
     },
     "Caterpillar": {
         "minLineLenght": 200,
-        "tolerancia": 0.1,
+        "tolerancia": 0.017,
         "limiares": [
             [1, 255],
             [70,220],
@@ -27,7 +27,7 @@
             [250, 255],
             [1, 0]
         ],
-        "minShape": 0.022,
+        "minShape": 0.015,
         "maxShape": 0.90,
         "intersectionArea": 0.15
     },
