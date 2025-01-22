@@ -23,6 +23,11 @@ import warnings
 import openpyxl
 import pdfplumber
 import re
+import pickle
+from google.auth.transport.requests import Request
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
 
 os.chdir('/python_backend')
 
@@ -444,6 +449,11 @@ def make_finalSheet(current_client, filename_id):
     print('5', flush=True)
 
     def convert(filename_id):
+
+        SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets']
+        TOKEN_FILE = 'API/token.pickle'
+        CREDENTIALS_FILE = 'API/credentials.json'
+
         caminho_pasta_excel = 'Excel'
         excel_final = 'planilha_final.xlsx'
         excel_modelo = 'cat_importar_dados.xlsx'
@@ -505,6 +515,41 @@ def make_finalSheet(current_client, filename_id):
                 df_final.at[3, 'X'] = c
                 df_final.at[18, 'X'] = p
                 print('6', flush=True)
+
+                
+
+
+        def authenticate():
+            creds = None
+            if os.path.exists(TOKEN_FILE):
+                with open(TOKEN_FILE, 'rb') as token:
+                    creds = pickle.load(token)
+            if not creds or not creds.valid:
+                if creds and creds.expired and creds.refresh_token:
+                    creds.refresh(Request())
+                else:
+                    flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_FILE, SCOPES)
+                    creds = flow.run_local_server(port=0)
+                with open(TOKEN_FILE, 'wb') as token:
+                    pickle.dump(creds, token)
+            return creds
+        
+        def replace_spreadsheet(creds, local_file_path, destination_file_id):
+            drive_service = build('drive', 'v3', credentials=creds)
+            media = MediaFileUpload(local_file_path, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            drive_service.files().update(
+                fileId=destination_file_id,
+                media_body=media).execute()
+        
+        def main():
+            creds = authenticate()
+            local_file_path = f'/Excel/planilha_final{filename_id}.xlsx'
+            destination_file_id = '1JSOfPGPs6Rwq6kij2bZSlALm1DIlwUGeS4cMpWA0rTY'
+            replace_spreadsheet(creds, local_file_path, destination_file_id)
+
+        main()
+        
+
 
             
             

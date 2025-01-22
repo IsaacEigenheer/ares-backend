@@ -21,3 +21,8 @@ selenium
 webdriver_manager
 openpyxl
 pdfplumber
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+google-api-core
+googleapiclient
