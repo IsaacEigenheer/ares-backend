@@ -451,8 +451,7 @@ def make_finalSheet(current_client, filename_id):
 
     def convert(filename_id):
 
-        SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets']
-        TOKEN_FILE = 'API/token.pickle'
+        SCOPES = ['https://www.googleapis.com/auth/drive']
         CREDENTIALS_FILE = 'API/credentials.json'
 
         def authenticate():
