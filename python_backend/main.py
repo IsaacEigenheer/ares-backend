@@ -28,6 +28,7 @@ from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
+from google.oauth2.service_account import Credentials
 
 os.chdir('/python_backend')
 
@@ -455,18 +456,7 @@ def make_finalSheet(current_client, filename_id):
         CREDENTIALS_FILE = 'API/credentials.json'
 
         def authenticate():
-            creds = None
-            if os.path.exists(TOKEN_FILE):
-                with open(TOKEN_FILE, 'rb') as token:
-                    creds = pickle.load(token)
-            if not creds or not creds.valid:
-                if creds and creds.expired and creds.refresh_token:
-                    creds.refresh(Request())
-                else:
-                    flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_FILE, SCOPES)
-                    creds = flow.run_local_server(port=0)
-                with open(TOKEN_FILE, 'wb') as token:
-                    pickle.dump(creds, token)
+            creds = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=SCOPES)
             return creds
         
         def replace_spreadsheet(creds, local_file_path, destination_file_id):
