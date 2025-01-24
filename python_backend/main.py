@@ -467,7 +467,7 @@ def make_finalSheet(current_client, filename_id):
         
         def main():
             creds = authenticate()
-            local_file_path = f'/Excel/planilha_final{filename_id}.xlsx'
+            local_file_path = f'Excel/planilha_final{filename_id}.xlsx'
             destination_file_id = '1JSOfPGPs6Rwq6kij2bZSlALm1DIlwUGeS4cMpWA0rTY'
             replace_spreadsheet(creds, local_file_path, destination_file_id)
 
