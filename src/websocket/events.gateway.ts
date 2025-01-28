@@ -34,7 +34,7 @@ export class EventsGateway {
   }
 
   @SubscribeMessage('progress')
-  async progress(@MessageBody() data: number): Promise<number> {
+  async progress(@MessageBody() data: {progress: number, id: any}): Promise<{progress: number, id: any}> {
     this.server.emit('progress', data);
     return data;
   }

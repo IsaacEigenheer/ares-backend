@@ -54,7 +54,7 @@ export class AppController {
       pythonProcess.stdout.on('data', (data) => {
         const progress = parseInt(data.toString()); // Assuming the progress is sent as a number
         if (!isNaN(progress)) {
-          this.eventsGateway.progress(progress); // Emit the progress event
+          this.eventsGateway.progress({progress, id: query.id}); // Emit the progress event
         }
 
         console.log(`Progress: ${data}`);
