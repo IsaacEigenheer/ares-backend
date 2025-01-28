@@ -45,7 +45,8 @@ export class AppController {
         './python_backend/main.py',
         `../uploads/${file.filename}`,
         query.type,
-        query.nPages
+        query.nPages,
+        query.id
       ]);
 
       const currentDirectory = __dirname; // Caminho atual do diretório
