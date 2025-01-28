@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     gnupg2 \
     libgl1 \
-    default-jre \  # Instala o Java Runtime Environment
+    default-jre \ 
     && rm -rf /var/lib/apt/lists/* \
     && wget -qO- https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs=18.19.1-1nodesource1 \
