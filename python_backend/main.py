@@ -23,9 +23,7 @@ import warnings
 import openpyxl
 import pdfplumber
 import re
-import pickle
-from google.auth.transport.requests import Request
-from google_auth_oauthlib.flow import InstalledAppFlow
+import tabula
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from google.oauth2.service_account import Credentials
@@ -67,12 +65,13 @@ def start(path, config, current_client, page_):
         image = first_page.get_pixmap(matrix=fitz.Matrix(scale_factor, scale_factor))
         image.save(f'./images/{filename_id}.png')
         image_path = f'./images/{filename_id}.png'
-        processar_imagem(image_path, config, current_client, h_src, w_src)
+        processar_imagem(image_path, config, current_client, h_src, w_src, scale_factor, pdf_path, page_)
     
     if current_client != 'HPE' and current_client != 'Whirlpool':
         yoloDetect(filename_id)
 
-    excel(path, current_client)
+    if current_client != "Whirlpool" and current_client != "Jacto" and current_client != "CNH":
+        excel(path, current_client)
 
     make_finalSheet(current_client, filename_id)
 
@@ -109,13 +108,13 @@ def start(path, config, current_client, page_):
     print('8', flush=True)
 
 
-def processar_imagem(image_path, config, current_client, h_src, w_src):
+def processar_imagem(image_path, config, current_client, h_src, w_src, scale_factor, pdf_path, page_):
     image = cv2.imread(image_path)
     h, w, c = image.shape
-    detect_lines_and_save(image, os.path.basename(image_path), h, w, config, current_client, h_src, w_src)
+    detect_lines_and_save(image, os.path.basename(image_path), h, w, config, current_client, h_src, w_src, scale_factor, pdf_path, page_)
 
 
-def detect_lines_and_save(image, image_name, h, w, config, current_client, h_src, w_src):
+def detect_lines_and_save(image, image_name, h, w, config, current_client, h_src, w_src, scale_factor, pdf_path, page_):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     all_lines = []
     limiares = config['limiares']
@@ -199,6 +198,12 @@ def detect_lines_and_save(image, image_name, h, w, config, current_client, h_src
         
         if (x2 + w2) < w:
             x2 = x2 + w2
+
+        if current_client == "Whirlpool" or current_client == "Jacto" or current_client == "CNH":
+            output_path = f"Excel/{t}{filename_id}.csv"
+            tabula.convert_into(pdf_path, output_path, pages=page_, area=[y1/scale_factor, x1/scale_factor, y2/scale_factor, x2/scale_factor])
+            read_file = pd.read_csv(f'Excel/{t}{filename_id}.csv')
+            read_file.to_excel(f'./Excel/{t}{filename_id}.xlsx', index=None, header=False)
 
         cropped_image = image[y1:y2, x1:x2]
         output_path = os.path.join("./cropped_images" , f"{t}{image_name}")##################################################################
@@ -356,7 +361,7 @@ def excel(path, current_client):
     print('4', flush=True)
     caminhos_arquivos = []
 
-    if current_client != 'HPE' and current_client != 'Whirlpool':
+    if current_client != 'HPE':
        path_cropped = './crops2'
     else:
         path_cropped = './cropped_images'
