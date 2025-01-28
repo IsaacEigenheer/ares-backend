@@ -45,8 +45,7 @@ export class AppController {
         './python_backend/main.py',
         `../uploads/${file.filename}`,
         query.type,
-        query.nPages,
-        query.id
+        query.nPages
       ]);
 
       const currentDirectory = __dirname; // Caminho atual do diretório
@@ -54,8 +53,9 @@ export class AppController {
 
       pythonProcess.stdout.on('data', (data) => {
         const progress = parseInt(data.toString()); // Assuming the progress is sent as a number
+        const id = query.id
         if (!isNaN(progress)) {
-          this.eventsGateway.progress({progress, id: query.id}); // Emit the progress event
+          this.eventsGateway.progress({progress, id: id}); // Emit the progress event
         }
 
         console.log(`Progress: ${data}`);
