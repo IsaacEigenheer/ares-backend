@@ -55,7 +55,7 @@ export class AppController {
         const progress = parseInt(data.toString()); // Assuming the progress is sent as a number
         const id = query.id
         if (!isNaN(progress)) {
-          this.eventsGateway.progress({progress, id: id}); // Emit the progress event
+          this.eventsGateway.progress({progress, id}); // Emit the progress event
         }
 
         console.log(`Progress: ${data}`);
