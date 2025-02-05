@@ -73,8 +73,11 @@ def start(path, config, current_client, page_):
     if current_client != "Whirlpool" and current_client != "Jacto" and current_client != "CNH":
         excel(path, current_client)
 
-    make_finalSheet(current_client, filename_id)
-
+    try:
+        make_finalSheet(current_client, filename_id)
+    except:
+        pass
+    
     print('7', flush=True)
 
     if os.path.exists('cropped_images'):
