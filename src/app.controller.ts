@@ -75,7 +75,7 @@ export class AppController {
           console.log(nomeDoArquivo);
           const filePath: string = join(
             currentDirectory,
-            `./python_backend/${nomeDoArquivo}`,
+            `../python_backend/${nomeDoArquivo}`,
           );
 
           res.setHeader('Access-Control-Allow-Origin', '*');
