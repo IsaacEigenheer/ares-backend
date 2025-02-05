@@ -28,7 +28,7 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from google.oauth2.service_account import Credentials
 
-os.chdir('./python_backend')
+os.chdir('/python_backend')
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -200,10 +200,10 @@ def detect_lines_and_save(image, image_name, h, w, config, current_client, h_src
             x2 = x2 + w2
 
         if current_client == "Whirlpool" or current_client == "Jacto" or current_client == "CNH":
-            output_path = f"Excel/{t}{filename_id}.csv"
+            output_path = f"./Excel/{t}{image_name}.csv"
             tabula.convert_into(pdf_path, output_path, pages=page_, area=[y1/scale_factor, x1/scale_factor, y2/scale_factor, x2/scale_factor])
-            read_file = pd.read_csv(f'Excel/{t}{filename_id}.csv')
-            read_file.to_excel(f'./Excel/{t}{filename_id}.xlsx', index=None, header=False)
+            read_file = pd.read_csv(f'./Excel/{t}{image_name}.csv')
+            read_file.to_excel(f'./Excel/{t}{image_name}.xlsx', index=None, header=False)
 
         cropped_image = image[y1:y2, x1:x2]
         output_path = os.path.join("./cropped_images" , f"{t}{image_name}")##################################################################
@@ -337,7 +337,7 @@ def yoloDetect(filename_id):
             x1, y1, x2, y2 = xyxy[0].item(), xyxy[1].item(), xyxy[2].item(), xyxy[3].item()
             x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
             crop_img = image[y1:y2, x1:x2]
-            cv2.imwrite(f'crops2/{j}{filename_id}.png', crop_img)
+            cv2.imwrite(f'./crops2/{j}{filename_id}.png', crop_img)
             j += 1
     print('3', flush=True)
 
