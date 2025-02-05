@@ -471,11 +471,13 @@ def make_finalSheet(current_client, filename_id):
                 media_body=media).execute()
         
         def main():
-            creds = authenticate()
-            local_file_path = f'Excel/planilha_final{filename_id}.xlsx'
-            destination_file_id = '1JSOfPGPs6Rwq6kij2bZSlALm1DIlwUGeS4cMpWA0rTY'
-            replace_spreadsheet(creds, local_file_path, destination_file_id)
-
+            try:
+                creds = authenticate()
+                local_file_path = f'Excel/planilha_final{filename_id}.xlsx'
+                destination_file_id = '1JSOfPGPs6Rwq6kij2bZSlALm1DIlwUGeS4cMpWA0rTY'
+                replace_spreadsheet(creds, local_file_path, destination_file_id)
+            except:
+                pass
         caminho_pasta_excel = 'Excel'
         excel_final = 'planilha_final.xlsx'
         excel_modelo = 'cat_importar_dados.xlsx'
