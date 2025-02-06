@@ -491,58 +491,60 @@ def make_finalSheet(current_client, filename_id):
         p = 1
         w = 1
         for arquivo in arquivos_excel:
-            if filename_id in arquivo:
-                wb_origem = load_workbook(f'{caminho_pasta_excel}/{arquivo}')
-                table_name = 'tabela'
+            try:
+                if filename_id in arquivo:
+                    wb_origem = load_workbook(f'{caminho_pasta_excel}/{arquivo}')
+                    table_name = 'tabela'
 
-                if arquivo != 'planilha_final.xlsx':
-                    string1 = 'CIRCUIT DATA TABLE'
-                    string2 = 'PARTS LIST'
-                    string3 = 'BUNDLE TABLE'
+                    if arquivo != 'planilha_final.xlsx':
+                        string1 = 'CIRCUIT DATA TABLE'
+                        string2 = 'PARTS LIST'
+                        string3 = 'BUNDLE TABLE'
 
-                    df_paracsv = pd.read_excel(os.path.join(caminho_pasta_excel, arquivo))
-                    file_path_csv = 'arquivo.csv'
-                    df_paracsv.to_csv(file_path_csv, index=False)
-                    df_readcsv = pd.read_csv(file_path_csv, header=None, skiprows=1)
-                    with open(file_path_csv, 'r', encoding='utf-8') as file:
-                        file_content = file.read()
-                    
-                    if(df_readcsv == string1).any().any():
-                        table_name = f'Circuit{c}'
-                    elif string1 in file_content:
-                        table_name = f'Circuit{c}'
-                    
-                    if ((df_paracsv == string2)).any().any():
-                        table_name = f'Partlist{p}'
-                        p += 1
-                    elif string2 in file_content:
-                        table_name = f'Partlist{p}'
-                        p += 1    
+                        df_paracsv = pd.read_excel(os.path.join(caminho_pasta_excel, arquivo))
+                        file_path_csv = 'arquivo.csv'
+                        df_paracsv.to_csv(file_path_csv, index=False)
+                        df_readcsv = pd.read_csv(file_path_csv, header=None, skiprows=1)
+                        with open(file_path_csv, 'r', encoding='utf-8') as file:
+                            file_content = file.read()
+                        
+                        if(df_readcsv == string1).any().any():
+                            table_name = f'Circuit{c}'
+                        elif string1 in file_content:
+                            table_name = f'Circuit{c}'
+                        
+                        if ((df_paracsv == string2)).any().any():
+                            table_name = f'Partlist{p}'
+                            p += 1
+                        elif string2 in file_content:
+                            table_name = f'Partlist{p}'
+                            p += 1    
 
-                    if(df_readcsv == string3).any().any():
-                        table_name = f'Bundle{w}'
-                        w += 1
-                    elif string3 in file_content:
+                        if(df_readcsv == string3).any().any():
                             table_name = f'Bundle{w}'
                             w += 1
+                        elif string3 in file_content:
+                                table_name = f'Bundle{w}'
+                                w += 1
 
-                    for sheet_name in wb_origem.sheetnames:
-                        ws_origem = wb_origem[sheet_name]
-                        ws_destino = wb_destino.create_sheet(title=table_name)
-                        for row in ws_origem.iter_rows(min_row=1, max_row=1, values_only=True):
-                            ws_destino.append(row)
+                        for sheet_name in wb_origem.sheetnames:
+                            ws_origem = wb_origem[sheet_name]
+                            ws_destino = wb_destino.create_sheet(title=table_name)
+                            for row in ws_origem.iter_rows(min_row=1, max_row=1, values_only=True):
+                                ws_destino.append(row)
 
-                        for row in ws_origem.iter_rows(min_row=2, values_only=True):
-                            ws_destino.append(row)
+                            for row in ws_origem.iter_rows(min_row=2, values_only=True):
+                                ws_destino.append(row)
 
-                arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
-                print(f'ExcelFinal {arquivo_excel_path}', flush=True)
-                wb_destino.save(arquivo_excel_path)
-                df_final = pd.read_excel(arquivo_excel_path, sheet_name='DADOS')    
-                df_final.at[3, 'X'] = c
-                df_final.at[18, 'X'] = p
-                print('6', flush=True)
-
+                    arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
+                    print(f'ExcelFinal {arquivo_excel_path}', flush=True)
+                    wb_destino.save(arquivo_excel_path)
+                    df_final = pd.read_excel(arquivo_excel_path, sheet_name='DADOS')    
+                    df_final.at[3, 'X'] = c
+                    df_final.at[18, 'X'] = p
+                    print('6', flush=True)
+            except:
+                continue
         main()   
 
 
