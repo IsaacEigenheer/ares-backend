@@ -585,7 +585,7 @@ def make_finalSheet(current_client, filename_id):
                 print('6', flush=True)
             
     def whirlpoolConvert(filename_id):
-        caminho_pasta_excel = '/Excel'
+        caminho_pasta_excel = 'Excel'
         arquivos_excel = [arquivo for arquivo in os.listdir(caminho_pasta_excel) if arquivo.endswith(".xlsx")]
 
         # Criar workbook final com aba de resumo
