@@ -180,10 +180,16 @@ def detect_lines_and_save(image, image_name, h, w, config, current_client, h_src
 
         if h_src < 1500:
             w1 = 0.01
+            if current_client == 'Whirlpool':
+                w1 = 0.008
         elif h_src >=1500 and h_src < 3500:
             w1 = 0.017
+            if current_client == 'Whirlpool':
+                w1 = 0.01
         else:
             w1 = 0.025
+            if current_client == 'Whirlpool':
+                w1 = 0.02
             
         if w_src < 1500:
             w2 = 5
@@ -548,15 +554,6 @@ def make_finalSheet(current_client, filename_id):
         main()   
 
 
-
-
-       
-        
-
-
-            
-            
-
     def generic_convert(filename_id):
         caminho_pasta_excel = 'Excel'
         excel_final = 'generic_spreadsheet.xlsx'
@@ -588,418 +585,96 @@ def make_finalSheet(current_client, filename_id):
                 print('6', flush=True)
             
     def whirlpoolConvert(filename_id):
-        caminho_pasta_excel = 'Excel'
-        excel_final = 'wp_spreadsheet.xlsx'
+        caminho_pasta_excel = '/Excel'
         arquivos_excel = [arquivo for arquivo in os.listdir(caminho_pasta_excel) if arquivo.endswith(".xlsx")]
-        wb_destino = load_workbook(excel_final)
+
+        # Criar workbook final com aba de resumo
+        wb_destino = openpyxl.Workbook()
+        ws_resumo = wb_destino.active
+        ws_resumo.title = "Resumo_Cores"
+        ws_resumo.append(["Cor", "UL STYLE", "WIRE GAUGE", "TEMP RATING", "Código"])  # Cabeçalho da aba consolidada
+
+        # Dicionário de conversão de cores
+        color_map = {
+            'YELLOW': 'YL', 'BLUE': 'BU', 'GRAY': 'GY', 'GREY': 'GY',
+            'ORANGE': 'OR', 'BROWN': 'BR', 'BLACK': 'BK', 'GREEN': 'GN', 'RED': 'RD',
+            'PINK': 'PK', 'GREEN/YELLOW': 'GN/YL', 'VIOLET': 'VT', 'LT BLUE': 'LT BU', 'LTBLUE': 'LT BU', 'WHITE': 'WH', 'PURPLE': 'PU',
+            'YELLOW/BLACK': 'YL/BK', 'GREY/WHITE': 'GY/WH', 'GRAY/WHITE': 'GY/WH', 'BROWN/BLACK': 'BR/BK', 'GREY/BLACK': 'GY/BK', 'GRAY/BLACK': 'GY/BK',
+            'ORANGE/BLACK': 'OR/BK', 'BLUE/BLACK': 'BU/BK', 'BLUE/WHITE': 'BU/WH'
+        }
 
         for arquivo in arquivos_excel:
-            proc_data = [[], [], [], []]
-            if filename_id in arquivo:
-                wb_origem = load_workbook(f'{caminho_pasta_excel}/{arquivo}')
-                table_name = 'tabela'
+            # Ignorar a planilha final para não processá-la novamente
+            if filename_id in arquivo and arquivo != f'planilha_final{filename_id}.xlsx':
+                caminho_arquivo = os.path.join(caminho_pasta_excel, arquivo)
+                wb_origem = load_workbook(caminho_arquivo, data_only=True)
 
-                if arquivo != 'planilha_final.xlsx':
-                    df_paracsv = pd.read_excel(os.path.join(caminho_pasta_excel, arquivo))
-                    
+                for aba_nome in wb_origem.sheetnames:
+                    # Ignorar a aba "Resumo_Cores" se ela existir na planilha origem
+                    if aba_nome == "Resumo_Cores":
+                        continue
 
-                    #WHIRLPOOL PART NUMBER VERIFICAÇÃO
-                    column_name = None
-                    normalized_columns = {}
-                    for index in range(len(df_paracsv)):
-                        for col in df_paracsv.columns:
-                            normalized_value = str(df_paracsv.at[index, col]).lower().replace(' ', '').replace('i', '1').replace('l', '1')
+                    ws_origem = wb_origem[aba_nome]
+                    # Copiar conteúdo da aba original para o workbook final (com limite de 31 caracteres no nome)
+                    ws_dest = wb_destino.create_sheet(title=aba_nome[:31])
+                    for row in ws_origem.iter_rows(values_only=True):
+                        ws_dest.append(row)
 
-                            if 'wh1r1poo1partnumber' == normalized_value:
-                                column_name = col 
-                                    
-                            if column_name and column_name in df_paracsv.columns:
-                                df_paracsv[column_name] = df_paracsv[column_name].astype(str).str.replace(' ', '').str.replace('i', '1', case=False).str.replace('l', '1', case=False)
+                    # Identificar a linha de cabeçalho e as colunas relevantes
+                    header_found = False
+                    header_index = None
+                    colunas_encontradas = {}
+                    for i, row in enumerate(ws_origem.iter_rows(values_only=True)):
+                        if row:
+                            for j, cell in enumerate(row):
+                                if isinstance(cell, str):
+                                    cell_norm = cell.strip().lower().replace(" ", "")
+                                    if cell_norm in ["wirecolor", "color"]:
+                                        colunas_encontradas["cor"] = j
+                                    elif cell_norm == "ulstyle":
+                                        colunas_encontradas["ul"] = j
+                                    elif cell_norm == "wiregauge":
+                                        colunas_encontradas["wire"] = j
+                                    elif cell_norm in ["temp", "temprating"]:
+                                        colunas_encontradas["temp"] = j
+                            # Verifica se encontrou todas as colunas necessárias
+                            if all(key in colunas_encontradas for key in ["cor", "ul", "wire", "temp"]):
+                                header_found = True
+                                header_index = i
+                                break
 
-                    for col in df_paracsv.columns:
-                        normalized_col = str(col).lower().replace(' ', '').replace('i', '1').replace('l', '1')
-                        normalized_columns[col] = normalized_col
-                        
-                        if normalized_col == 'wh1r1poo1partnumber':
-                            column_name = col 
+                    # Se o cabeçalho for identificado, processa as linhas seguintes
+                    if header_found and header_index is not None:
+                        rows = list(ws_origem.iter_rows(values_only=True))
+                        for row in rows[header_index+1:]:
+                            if not any(row):
+                                continue  # Pular linhas vazias
 
-                        if column_name:
-                            df_paracsv[column_name] = df_paracsv[column_name].astype(str).str.replace(' ', '').str.replace('i', '1', case=False).str.replace('l', '1', case=False)
+                            # Obter valores de forma segura, verificando se o índice existe na linha
+                            cor_val = row[colunas_encontradas["cor"]] if len(row) > colunas_encontradas["cor"] else ""
+                            cor_original = str(cor_val).strip() if cor_val is not None else ""
+                            cor_convertida = color_map.get(cor_original.upper(), cor_original)
 
+                            ul_val = row[colunas_encontradas["ul"]] if len(row) > colunas_encontradas["ul"] else ""
+                            ul_style = str(ul_val).strip() if ul_val is not None else ""
 
-                    #MANUFACTURER PART NUMBER VERIFICAÇÃO
-                    column_name = None
-                    normalized_columns = {}
-                    for index in range(len(df_paracsv)):
-                        for col in df_paracsv.columns:
-                            normalized_value = str(df_paracsv.at[index, col]).lower().replace(' ', '').replace('i', '1').replace('l', '1')
+                            wire_val = row[colunas_encontradas["wire"]] if len(row) > colunas_encontradas["wire"] else ""
+                            wire_gauge = str(wire_val).strip() if wire_val is not None else ""
 
-                            if 'manufacturerpartnumber' == normalized_value:
-                                column_name = col 
-                    
-                            if column_name and column_name in df_paracsv.columns:
-                                df_paracsv[column_name] = df_paracsv[column_name].astype(str).str.replace(' ', '').str.replace('i', '1', case=False).str.replace('l', '1', case=False)
+                            temp_val = row[colunas_encontradas["temp"]] if len(row) > colunas_encontradas["temp"] else ""
+                            temp_rating = str(temp_val).strip() if temp_val is not None else ""
 
+                            # Criar código no formato: wiregauge_cor_ulstyle
+                            codigo = f"{wire_gauge}_{cor_convertida}_{ul_style}"
 
-                    for col in df_paracsv.columns:
-                        normalized_col = str(col).lower().replace(' ', '').replace('i', '1').replace('l', '1')
-                        normalized_columns[col] = normalized_col
-                        
-                        if normalized_col == 'manufacturerpartnumber':
-                            column_name = col 
+                            ws_resumo.append([cor_convertida, ul_style, wire_gauge, temp_rating, codigo])
 
-                        if column_name:
-                            df_paracsv[column_name] = df_paracsv[column_name].astype(str).str.replace(' ', '').str.replace('i', '1', case=False).str.replace('l', '1', case=False)
+        # Salvar a planilha final contendo todas as abas
+        arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
+        print(f'ExcelFinal {arquivo_excel_path}', flush=True)
+        wb_destino.save(arquivo_excel_path)
+        print('6', flush=True)
 
-                    
-                    #TEMPERATURA VERIFICAÇÃO
-                    normalized_columns = {}
-                    column_name = None
-
-                    for col in df_paracsv.columns:
-                        normalized_col = str(col).lower().replace(' ', '').replace('i', '1').replace('l', '1')
-                        normalized_columns[col] = normalized_col
-                        
-                        if 'c1ass' in normalized_col:
-                            column_name = col 
-
-                        if column_name:
-                            df_paracsv[column_name] = df_paracsv[column_name].astype(str).str.replace(' ', '').str.replace(r'\.\d+', '', regex=True)
-                    if column_name:
-                        for item in df_paracsv[column_name]:
-                            proc_data[3].append(item)
-
-
-                    #COR DO CABO VERIFICAÇÃO
-                    normalized_columns = {}
-                    column_name = None
-
-                    for col in df_paracsv.columns:
-                        normalized_col = str(col).lower().replace(' ', '').replace('i', '1').replace('l', '1')
-                        normalized_columns[col] = normalized_col
-                        
-                        if normalized_col == 'w1reco1or' or normalized_col == 'co1or':
-                            column_name = col 
-
-                        if column_name:
-                            df_paracsv[column_name] = df_paracsv[column_name].astype(str).str.replace(' ', '')
-                    if column_name:
-                        for item in df_paracsv[column_name]:
-                            if item == 'YELLOW':
-                                item = 'AM'
-                            elif item == 'BLUE':
-                                item = 'AZ'
-                            elif item == 'WHITE':
-                                item = 'BR'
-                            elif item == 'GRAY' or item == 'GREY':
-                                item = 'CZ'
-                            elif item == 'ORANGE':
-                                item = 'LJ'
-                            elif item == 'BROWN':
-                                item = 'MR'
-                            elif item == 'BLACK':
-                                item = 'PR'
-                            elif item == 'GREEN':
-                                item = 'VD'
-                            elif item == 'RED':
-                                item = 'VM'
-                            elif item == 'PINK':
-                                item = 'RO'
-                            elif item == 'GREEN/YELLOW':
-                                item = 'VD/AM'
-                            elif item == 'VIOLET':
-                                item = 'VI'
-                            elif item == 'LT BLUE' or item == 'LTBLUE':
-                                item = 'AZ CL'
-
-                            proc_data[0].append(item)
-
-
-                    #BITOLA VERIFICAÇÃO
-                    normalized_columns = {}
-                    column_name = None
-
-                    for col in df_paracsv.columns:
-                        normalized_col = str(col).lower().replace(' ', '').replace('i', '1').replace('l', '1')
-                        normalized_columns[col] = normalized_col
-                        
-                        if normalized_col == 'w1regauge':
-                            column_name = col 
-
-                        if column_name:
-                            df_paracsv[column_name] = df_paracsv[column_name].astype(str).str.replace(' ', '').str.replace('i', '1', case=False).str.replace('l', '1', case=False)
-                    if column_name:
-                        def format_value(item):
-                            match = re.match(r'^\s*(\d+)([.,]\d+)?\s*[a-zA-Z]*', item)
-                            if match:
-                                integer_part = match.group(1)
-                                decimal_part = match.group(2)
-
-                                if decimal_part:
-                                    decimal_part = decimal_part.replace('.', ',')
-                                    decimal_part = decimal_part[:3]
-                                    if len(decimal_part) < 3:
-                                        decimal_part = decimal_part + '0'
-                                else:
-                                    decimal_part = ',00'
-
-                                formatted_value = f"{integer_part}{decimal_part} mm²"
-                                return formatted_value.strip()
-                            return None
-                        for item in df_paracsv[column_name]:
-                            formatted_item = format_value(item)
-                            proc_data[1].append(formatted_item)
-
-                    if (len(proc_data[0]) or len(proc_data[1]) == 0):
-                        def format_value(item):
-                            match = re.match(r'^\s*(\d+)([.,]\d+)?\s*[a-zA-Z]*', item)
-                            if match:
-                                integer_part = match.group(1)
-                                decimal_part = match.group(2)
-
-                                if decimal_part:
-                                    decimal_part = decimal_part.replace('.', ',')
-                                    decimal_part = decimal_part[:3]
-                                    if len(decimal_part) < 3:
-                                        decimal_part = decimal_part + '0'
-                                else:
-                                    decimal_part = ',00'
-
-                                formatted_value = f"{integer_part}{decimal_part} mm²"
-                                return formatted_value.strip()
-                            return None
-
-                        normalized_columns = {}
-                        spool_column_name = None
-
-                        for col in df_paracsv.columns:
-                            normalized_col = str(col).lower().replace(' ', '').replace('i', '1').replace('l', '1')
-                            normalized_columns[col] = normalized_col
-                            if 'spoo1name' in normalized_col:
-                                spool_column_name = col
-
-                            if spool_column_name and spool_column_name in df_paracsv.columns:
-                                        df_paracsv[spool_column_name] = df_paracsv[spool_column_name].astype(str).str.replace(' ', '')
-
-                        if spool_column_name == None:
-                            for index in range(len(df_paracsv)):
-                                for col in df_paracsv.columns:
-                                    normalized_value = str(df_paracsv.at[index, col]).lower().replace(' ', '').replace('i', '1').replace('l', '1')
-                                    if 'spoo1name' in normalized_value:
-                                        spool_column_name = col
-                                        
-                            
-                                    if spool_column_name and spool_column_name in df_paracsv.columns:
-                                        df_paracsv[spool_column_name] = df_paracsv[spool_column_name].astype(str).str.replace(' ', '')
-
-
-                        # Se a coluna foi encontrada
-                        if spool_column_name:
-                            # Normalizando os dados na coluna
-                            df_paracsv[spool_column_name] = df_paracsv[spool_column_name].astype(str).str.replace(' ', '')
-
-                            for item in df_paracsv[spool_column_name]:
-                                # Usando regex para extrair bitola e cor
-                                match = re.search(r'(\d+(?:\.\d+)?)(?:\s*/\s*|\s+|)([A-Z]+)(?:\s+|/)(\d+)', item)
-                                if match:
-                                    bitola = match.group(1)  # Primeiro grupo: a bitola
-                                    cor = match.group(2)      # Segundo grupo: a cor
-                                    temperatura = match.group(3)  # Terceiro grupo: a temperatura
-                                    # Processando a cor
-                                    cor_mapeada = {
-                                        'YELLOW': 'AM',
-                                        'BLUE': 'AZ',
-                                        'WHITE': 'BR',
-                                        'GRAY': 'CZ',
-                                        'GREY': 'CZ',
-                                        'ORANGE': 'LJ',
-                                        'BROWN': 'MR',
-                                        'BLACK': 'PR',
-                                        'GREEN': 'VD',
-                                        'RED': 'VM',
-                                        'PINK': 'RO',
-                                        'GREEN/YELLOW': 'VD/AM',
-                                        'VIOLET': 'VI',
-                                        'LT BLUE': 'AZ CL',
-                                        'LTBLUE' : 'AZ CL'
-                                    }
-
-                                    cor_final = cor_mapeada.get(cor, None)
-
-                                    # Formatando a bitola
-                                    formatted_bitola = format_value(bitola)
-
-                                    # Adicionando os valores processados
-                                    if cor_final:
-                                        proc_data[0].append(cor_final)
-                                    if formatted_bitola:
-                                        proc_data[1].append(formatted_bitola)
-                                    if temperatura:
-                                        proc_data[3].append(temperatura)  # Adicionando a temperatura
-
-
-                    #CONECTOR VERIFICAÇÃO
-                    column_name = None
-                    normalized_columns = {}
-                    for index in range(len(df_paracsv)):
-                        for col in df_paracsv.columns:
-                            normalized_value = str(df_paracsv.at[index, col]).lower().replace(' ', '').replace('i', '1').replace('l', '1')
-
-                            if 'connector' == normalized_value:
-                                column_name = col 
-                                    
-                            if column_name and column_name in df_paracsv.columns:
-                                df_paracsv[column_name] = df_paracsv[column_name].astype(str).str.replace(' ', '').str.replace('i', '1', case=False).str.replace('l', '1', case=False)
-
-                    for col in df_paracsv.columns:
-                        normalized_col = str(col).lower().replace(' ', '').replace('i', '1').replace('l', '1')
-                        normalized_columns[col] = normalized_col
-                        
-                        if normalized_col == 'connector':
-                            column_name = col 
-
-                        if column_name:
-                            df_paracsv[column_name] = df_paracsv[column_name].astype(str).str.replace(' ', '').str.replace('i', '1', case=False).str.replace('l', '1', case=False)
-
-                    #TERMINAL VERIFICAÇÃO
-                    column_name = None
-                    normalized_columns = {}
-                    for index in range(len(df_paracsv)):
-                        for col in df_paracsv.columns:
-                            normalized_value = str(df_paracsv.at[index, col]).lower().replace(' ', '').replace('i', '1').replace('l', '1')
-
-                            if 'term1na1' == normalized_value:
-                                column_name = col 
-                                    
-                            if column_name and column_name in df_paracsv.columns:
-                                df_paracsv[column_name] = df_paracsv[column_name].astype(str).str.replace(' ', '').str.replace('i', '1', case=False).str.replace('l', '1', case=False)
-
-                    for col in df_paracsv.columns:
-                        normalized_col = str(col).lower().replace(' ', '').replace('i', '1').replace('l', '1')
-                        normalized_columns[col] = normalized_col
-                        
-                        if normalized_col == 'term1na1':
-                            column_name = col 
-
-                        if column_name:
-                            df_paracsv[column_name] = df_paracsv[column_name].astype(str).str.replace(' ', '').str.replace('i', '1', case=False).str.replace('l', '1', case=False)
-
-
-
-                    #ADICIONANDO PLANILHAS A PLANILHA FINAL
-                    file_path_csv = 'arquivo.csv'
-                    df_paracsv.to_csv(file_path_csv, index=False)
-
-                    for sheet_name in wb_origem.sheetnames:
-                        ws_origem = wb_origem[sheet_name]
-                        ws_destino = wb_destino.create_sheet(title=table_name)
-
-                        ws_destino.append(list(df_paracsv.columns))
-
-                        for row in df_paracsv.itertuples(index=False):
-                            ws_destino.append(row)
-
-                    wb_source = openpyxl.load_workbook('Cabos-Whirlpool.xlsx')
-                    ws_source = wb_source.active
-
-                    #VERIFICANDO CABOS POR COR E BITOLA
-                    def mm2_to_awg(mm2):
-                        conversion_table = {
-                            '0,05 mm²': '30 AWG',
-                            '0,08 mm²': '28 AWG',
-                            '0,14 mm²': '26 AWG',
-                            '0,20 mm²': '24 AWG',
-                            '0,25 mm²': '24 AWG',
-                            '0,32 mm²': '22 AWG',
-                            '0,34 mm²': '22 AWG',
-                            '0,35 mm²': '22 AWG',
-                            '0,38 mm²': '21 AWG',
-                            '0,50 mm²': '20 AWG',
-                            '0,75 mm²': '18 AWG',
-                            '1,00 mm²': '17 AWG',
-                            '1,50 mm²': '16 AWG',
-                            '2,50 mm²': '14 AWG',
-                            '4,00 mm²': '12 AWG',
-                            '6,00 mm²': '10 AWG',
-                            '10,00 mm²': '8 AWG',
-                            '16,00 mm²': '6 AWG',
-                            '25,00 mm²': '4 AWG',
-                            '35,00 mm²': '2 AWG',
-                            '50,00 mm²': '1 AWG',
-                        }
-                        
-                        return conversion_table.get(mm2, None)
-
-                    def main_cables(mm2, color, temp):
-                        find_cable = {
-                            ('0,32 mm²', 'PR', '105') : '1022200802',
-                            ('0,32 mm²', 'BR', '105') : '1022200402',
-                            ('0,32 mm²', 'VM', '105') : '1022201101',
-                            ('0,32 mm²', 'AZ', '105') : '1022200201',
-                            ('0,32 mm²', 'LJ', '105') : '1022200600',
-                            ('0,32 mm²', 'MR', '105') : '1022200701',
-                            ('0,32 mm²', 'RO', '105') : '1022200900',
-                            ('0,32 mm²', 'AM', '105') : '1022200101',
-                            ('0,32 mm²', 'VD', '105') : '1022201001',
-                            ('0,32 mm²', 'CZ', '105') : '1022200501',
-
-                            ('0,20 mm²', 'MR', '105') : '1022400701',
-                            ('0,20 mm²', 'VM', '105') : '1022401103',
-                            ('0,20 mm²', 'PR', '105') : '1022400804',
-                            ('0,20 mm²', 'RO', '105') : '1022400900',
-                            ('0,20 mm²', 'AM', '105') : '1022400102',
-                            ('0,20 mm²', 'AZ', '105') : '1022400201',
-                            ('0,20 mm²', 'CZ', '105') : '1022400501',
-                            ('0,20 mm²', 'LJ', '105') : '1022400601',
-                            ('0,20 mm²', 'BR', '105') : '1022400401',
-                            ('0,20 mm²', 'VD', '105') : '1022400100',
-
-
-                            ('0,50 mm²', 'AZ', '105') : '1020500215',
-                            ('0,50 mm²', 'VM', '105') : '1020501109',
-                            ('0,50 mm²', 'MR', '105') : '1020500710',
-                            ('0,50 mm²', 'VD/AM', '70') : '1010504400',
-                            ('0,50 mm²', 'BR', '105') : '1020500410',
-                            ('0,50 mm²', 'AZ', '70') : '125053',
-                            ('0,50 mm²', 'BR', '70') : '125027',
-                            ('0,50 mm²', 'VM', '70') : '125032',
-                            ('0,50 mm²', 'PR', '70') : '125004',
-
-                            ('0,75 mm²', 'VD/AM', '70') : '125076'
-
-                        }
-                        return find_cable.get((mm2, color, temp), None)
-                    
-
-                    for x in range(len(proc_data[0])):
-                        cable = main_cables((proc_data[1][x]), (proc_data[0][x]), (proc_data[3][x]))
-                        if cable:
-                            proc_data[2].append(cable)
-                        else:
-                            for row in range(2, ws_source.max_row + 1):
-                                temp_sheet =  ws_source.cell(row=row, column=3).value
-                                cor_sheet = ws_source.cell(row=row, column=4).value  
-                                bitola_sheet = ws_source.cell(row=row, column=5).value
-                                item = ws_source.cell(row=row, column=1).value  
-                                awg_value = mm2_to_awg(proc_data[1][x])
-                                if proc_data[0][x] == cor_sheet and (proc_data[1][x] == bitola_sheet or awg_value == bitola_sheet) and (proc_data[3][x] + '°C') == temp_sheet:
-                                    proc_data[2].append(item)
-                                    break
-                                else:
-                                    item = None
-                            if item == None:
-                                proc_data[2].append('Item não encontrado!')
-                                
-                    if "Item" in wb_destino.sheetnames:
-                        ws_item = wb_destino["Item"]
-                        for cor, bitola, item in zip(proc_data[0], proc_data[1], proc_data[2]):
-                            ws_item.append([cor, bitola, item])
-
-                arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
-                print(f'ExcelFinal {arquivo_excel_path}', flush=True)
-                wb_destino.save(arquivo_excel_path)
-                print('6', flush=True)
-        
 
     warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl.styles.stylesheet")
     if current_client == 'Caterpillar':
