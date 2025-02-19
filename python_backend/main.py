@@ -28,7 +28,7 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from google.oauth2.service_account import Credentials
 
-os.chdir('/python_backend')
+os.chdir('./python_backend')
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -211,8 +211,11 @@ def detect_lines_and_save(image, image_name, h, w, config, current_client, h_src
         if current_client == "Whirlpool" or current_client == "Jacto" or current_client == "CNH":
             output_path = f"./Excel/{t}{image_name}.csv"
             tabula.convert_into(pdf_path, output_path, pages=page_, area=[y1/scale_factor, x1/scale_factor, y2/scale_factor, x2/scale_factor])
-            read_file = pd.read_csv(f'./Excel/{t}{image_name}.csv')
-            read_file.to_excel(f'./Excel/{t}{image_name}.xlsx', index=None, header=False)
+            try:
+                read_file = pd.read_csv(f'./Excel/{t}{image_name}.csv')
+                read_file.to_excel(f'./Excel/{t}{image_name}.xlsx', index=None, header=False)
+            except:
+                pass
 
         cropped_image = image[y1:y2, x1:x2]
         output_path = os.path.join("./cropped_images" , f"{t}{image_name}")##################################################################
@@ -631,9 +634,9 @@ def make_finalSheet(current_client, filename_id):
                                     cell_norm = cell.strip().lower().replace(" ", "")
                                     if cell_norm in ["wirecolor", "color"]:
                                         colunas_encontradas["cor"] = j
-                                    elif cell_norm == "ulstyle":
+                                    elif cell_norm in ["ulstyle", "wirestyle"]:
                                         colunas_encontradas["ul"] = j
-                                    elif cell_norm == "wiregauge":
+                                    elif cell_norm in ["wiregauge", "awg"]:
                                         colunas_encontradas["wire"] = j
                                     elif cell_norm in ["temp", "temprating"]:
                                         colunas_encontradas["temp"] = j
