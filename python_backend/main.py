@@ -446,7 +446,7 @@ def excel(path, current_client):
                 
                 links = []
                 u = 0
-                while len(links) < limit and u < 600: # Aumentado para 600 como solicitado
+                while len(links) < limit and u < 60: # Aumentado para 600 como solicitado
                     links = driver.find_elements(By.XPATH, "//a[contains(@title, 'output')]")
                     time.sleep(1)
                     u += 1
