@@ -415,13 +415,13 @@ def excel(path, current_client):
                 file_input = driver.find_element('xpath', '//*[@id="file"]')
                 move_mouse_smoothly(driver, file_input)
                 qnt_arquivos = len(caminhos_arquivos)
-                if qnt_arquivos <= 11:
+                if qnt_arquivos <= 9:
                     for arquivo in caminhos_arquivos:
                         file_input.send_keys(arquivo)
                 fileLoop = 0
-                if qnt_arquivos > 11:
+                if qnt_arquivos > 9:
                     for arquivo in caminhos_arquivos:
-                        if fileLoop < 11:
+                        if fileLoop < 9:
                                 file_input.send_keys(arquivo)
                                 
                                 fileLoop += 1 
@@ -438,25 +438,25 @@ def excel(path, current_client):
                 time.sleep(12)
                 driver.execute_script("window.scrollBy(0, 100);")
                 links = driver.find_elements(By.XPATH, "//a[contains(@title, 'output')]")
-                if qnt_arquivos <= 11:
+                if qnt_arquivos <= 9:
                     u = 0
                     while len(links) < (qnt_arquivos) and u < 30800:
                         links = driver.find_elements(By.XPATH, "//a[contains(@title, 'output')]")
                         u +=1
-                if qnt_arquivos > 11:
+                if qnt_arquivos > 9:
                     u = 0
-                    while len(links) < 11 and u < 30800:
+                    while len(links) < 9 and u < 30800:
                         links = driver.find_elements(By.XPATH, "//a[contains(@title, 'output')]")
                         u +=1     
                 links = driver.find_elements(By.XPATH, "//a[contains(@title, 'output')]")
                 for index, link in enumerate(links):
                     link.click()
-                    time.sleep(3)
+                    time.sleep(9)
                 time.sleep(6)
                 driver.quit()
                 time.sleep(3)
-                if qnt_arquivos > 11:
-                    del caminhos_arquivos[0:11]
+                if qnt_arquivos > 9:
+                    del caminhos_arquivos[0:9]
                     convert_to_excel()
                 break
             except:
