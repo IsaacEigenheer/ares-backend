@@ -27,7 +27,8 @@ import tabula
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from google.oauth2.service_account import Credentials
-#
+import datetime
+
 os.chdir('/python_backend')
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -373,10 +374,14 @@ def excel(path, current_client):
     print('4', flush=True)
     caminhos_arquivos = []
 
+    # Lógica de caminhos relativos original mantida
     if current_client != 'HPE':
-       path_cropped = './crops2'
+        path_cropped = './crops2'
     else:
         path_cropped = './cropped_images'
+
+    # Garante que a pasta de origem das imagens exista
+    os.makedirs(path_cropped, exist_ok=True)
 
     for arquivo in os.listdir(path_cropped):
         if filename_id in arquivo:
@@ -384,12 +389,17 @@ def excel(path, current_client):
             caminho_absoluto = os.path.abspath(caminho_relativo)
             caminhos_arquivos.append(caminho_absoluto)
 
+    # Garante que a pasta de screenshots exista na raiz do projeto
+    screenshots_dir = os.path.abspath("../debug_screenshots")
+    os.makedirs(screenshots_dir, exist_ok=True)
+
     def convert_to_excel():
         attemps = 0
         while attemps < 3:
+            driver = None # Garante que o driver é definido
             try:
-
                 download_directory = os.path.abspath("Excel")
+                os.makedirs(download_directory, exist_ok=True)
                 
                 chrome_options = Options()
                 chrome_options.add_argument('--ignore-ssl-errors=yes')
@@ -403,7 +413,7 @@ def excel(path, current_client):
                     "download.default_directory": download_directory,
                     "download.prompt_for_download": False,
                     "download.directory_upgrade": True,
-                    "safebrowsing.enabled": True,
+                    "safeBrowse.enabled": True,
                     "profile.default_content_setting_values.automatic_downloads": 1
                 }
                 chrome_options.add_experimental_option("prefs", prefs)
@@ -415,16 +425,12 @@ def excel(path, current_client):
                 file_input = driver.find_element('xpath', '//*[@id="file"]')
                 move_mouse_smoothly(driver, file_input)
                 qnt_arquivos = len(caminhos_arquivos)
-                if qnt_arquivos <= 9:
-                    for arquivo in caminhos_arquivos:
-                        file_input.send_keys(arquivo)
-                fileLoop = 0
-                if qnt_arquivos > 9:
-                    for arquivo in caminhos_arquivos:
-                        if fileLoop < 9:
-                                file_input.send_keys(arquivo)
-                                
-                                fileLoop += 1 
+                
+                limit = 9 if qnt_arquivos > 9 else qnt_arquivos
+                batch = caminhos_arquivos[:limit]
+                for arquivo in batch:
+                    file_input.send_keys(arquivo)
+                
                 time.sleep(8)
                 driver.execute_script("window.scrollBy(0, 600);")
                 language_element = driver.find_element(By.XPATH, '//*[@id="select_language"]/div/div/span/span[1]/span')
@@ -437,30 +443,51 @@ def excel(path, current_client):
                 driver.execute_script("arguments[0].click();", element)
                 time.sleep(12)
                 driver.execute_script("window.scrollBy(0, 100);")
-                links = driver.find_elements(By.XPATH, "//a[contains(@title, 'output')]")
-                if qnt_arquivos <= 9:
-                    u = 0
-                    while len(links) < (qnt_arquivos) and u < 30800:
-                        links = driver.find_elements(By.XPATH, "//a[contains(@title, 'output')]")
-                        u +=1
-                if qnt_arquivos > 9:
-                    u = 0
-                    while len(links) < 9 and u < 30800:
-                        links = driver.find_elements(By.XPATH, "//a[contains(@title, 'output')]")
-                        u +=1     
+                
+                links = []
+                u = 0
+                while len(links) < limit and u < 600: # Aumentado para 600 como solicitado
+                    links = driver.find_elements(By.XPATH, "//a[contains(@title, 'output')]")
+                    time.sleep(1)
+                    u += 1
+                
                 links = driver.find_elements(By.XPATH, "//a[contains(@title, 'output')]")
                 for index, link in enumerate(links):
                     link.click()
                     time.sleep(9)
+                
                 time.sleep(6)
-                driver.quit()
-                time.sleep(3)
+                
                 if qnt_arquivos > 9:
                     del caminhos_arquivos[0:9]
                     convert_to_excel()
-                break
-            except:
+                
+                break # Sai do loop de tentativas se foi bem-sucedido
+
+            except Exception as e: # Captura a exceção para logar
+                print(f"ERRO na tentativa {attemps + 1}: {e}", flush=True)
+                
+                # --- LÓGICA DE SCREENSHOT ADICIONADA ---
+                if driver:
+                    try:
+                        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                        screenshot_filename = f"debug_attempt_{attemps + 1}_{timestamp}.png"
+                        # Salva o screenshot na pasta na raiz do projeto
+                        screenshot_path = os.path.join(screenshots_dir, screenshot_filename)
+                        driver.save_screenshot(screenshot_path)
+                        # Avisa o backend que o screenshot foi salvo
+                        print(f"DebugScreenshot {screenshot_filename}", flush=True)
+                    except Exception as screenshot_error:
+                        print(f"Falha ao tirar screenshot: {screenshot_error}", flush=True)
+                # --- FIM DA LÓGICA DE SCREENSHOT ---
+                
                 attemps += 1
+            
+            finally:
+                # Garante que o driver seja fechado
+                if driver:
+                    driver.quit()
+    
     convert_to_excel()
 
 def make_finalSheet(current_client, filename_id):
