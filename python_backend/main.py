@@ -389,10 +389,6 @@ def excel(path, current_client):
             caminho_absoluto = os.path.abspath(caminho_relativo)
             caminhos_arquivos.append(caminho_absoluto)
 
-    # Garante que a pasta de screenshots exista na raiz do projeto
-    screenshots_dir = os.path.abspath("../debug_screenshots")
-    os.makedirs(screenshots_dir, exist_ok=True)
-
     def convert_to_excel():
         attemps = 0
         while attemps < 3:
@@ -447,7 +443,7 @@ def excel(path, current_client):
                 
                 links = []
                 u = 0
-                while len(links) < limit and u < 60: # Aumentado para 600 como solicitado
+                while len(links) < limit and u < 120: # Aumentado para 600 como solicitado
                     links = driver.find_elements(By.XPATH, "//a[contains(@title, 'output')]")
                     time.sleep(1)
                     u += 1
@@ -459,20 +455,8 @@ def excel(path, current_client):
                         document.querySelectorAll('iframe, .adsbygoogle, [id^="google_ads"]').forEach(ad => ad.remove());
                         """)
                     finally:
-                        try:
-                            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-                            screenshot_filename = f"debug_attempt_{attemps + 1}_{timestamp}.png"
-                            # Salva o screenshot na pasta na raiz do projeto
-                            screenshot_path = os.path.join(screenshots_dir, screenshot_filename)
-                            driver.save_screenshot(screenshot_path)
-                            # Avisa o backend que o screenshot foi salvo
-                            print(f"DebugScreenshot {screenshot_filename}", flush=True)
-                        except Exception as screenshot_error:
-                            print(f"Falha ao tirar screenshot: {screenshot_error}", flush=True)
-                    # --- FIM DA LÓGICA DE SCREENSHOT ---
-                        finally:
-                            link.click()
-                            time.sleep(9)
+                        link.click()
+                        time.sleep(9)
                 
                 time.sleep(6)
                 
@@ -482,27 +466,9 @@ def excel(path, current_client):
                 
                 break # Sai do loop de tentativas se foi bem-sucedido
 
-            except Exception as e: # Captura a exceção para logar
-                print(f"ERRO na tentativa {attemps + 1}: {e}", flush=True)
-                
-                # --- LÓGICA DE SCREENSHOT ADICIONADA ---
-                if driver:
-                    try:
-                        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-                        screenshot_filename = f"debug_attempt_{attemps + 1}_{timestamp}.png"
-                        # Salva o screenshot na pasta na raiz do projeto
-                        screenshot_path = os.path.join(screenshots_dir, screenshot_filename)
-                        driver.save_screenshot(screenshot_path)
-                        # Avisa o backend que o screenshot foi salvo
-                        print(f"DebugScreenshot {screenshot_filename}", flush=True)
-                    except Exception as screenshot_error:
-                        print(f"Falha ao tirar screenshot: {screenshot_error}", flush=True)
-                # --- FIM DA LÓGICA DE SCREENSHOT ---
-                
+            except Exception: # Captura a exceção para logar
                 attemps += 1
-            
             finally:
-                # Garante que o driver seja fechado
                 if driver:
                     driver.quit()
     

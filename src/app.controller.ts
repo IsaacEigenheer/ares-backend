@@ -41,9 +41,6 @@ export class AppController {
   ) {
     let nomeDoArquivo: string;
     return new Promise((resolve, reject) => {
-      // Garante que a pasta de screenshots exista na raiz do projeto
-      fs.mkdirSync(join(__dirname, '..', 'debug_screenshots'), { recursive: true });
-
       const pythonProcess = spawn('python', [
         './python_backend/main.py',
         `../uploads/${file.filename}`,
@@ -64,15 +61,6 @@ export class AppController {
           const parts = message.split(' ');
           if (parts.length > 1) {
             nomeDoArquivo = parts[1].replace(/[\r\n]+$/, '');
-          }
-        } else if (message.startsWith('DebugScreenshot')) {
-          const parts = message.split(' ');
-          if (parts.length > 1) {
-            const screenshotFilename = parts[1].replace(/[\r\n]+$/, '');
-            this.eventsGateway.server.emit('debug-screenshot-ready', {
-              filename: screenshotFilename,
-              id: id,
-            });
           }
         } else if (message.startsWith('8')) {
           if (!nomeDoArquivo) {
@@ -112,19 +100,5 @@ export class AppController {
         resolve(undefined);
       });
     });
-  }
-
-  @Get('debug-screenshot/:filename')
-  getDebugScreenshot(
-    @Param('filename') filename: string,
-    @Res() res: Response,
-  ) {
-    // Usa __dirname para construir o caminho relativo e `resolve` para torná-lo absoluto
-    const filePath = resolve(__dirname, '..', 'debug_screenshots', filename);
-    if (fs.existsSync(filePath)) {
-      res.sendFile(filePath);
-    } else {
-      res.status(404).send('Screenshot não encontrado.');
-    }
   }
 }
