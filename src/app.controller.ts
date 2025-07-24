@@ -28,7 +28,7 @@ export class AppController {
         filename: (req, file, callback) => {
           const uniqueSuffix = Date.now();
           const ext = extname(file.originalname);
-          const filename = `output-${uniqueSuffix}${ext}`;
+          const filename = `output${uniqueSuffix}${ext}`;
           callback(null, filename);
         },
       }),

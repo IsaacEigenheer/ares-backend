@@ -466,7 +466,8 @@ def excel(path, current_client):
                 
                 break # Sai do loop de tentativas se foi bem-sucedido
 
-            except Exception: # Captura a exceção para logar
+            except Exception as e: # Captura a exceção para logar
+                print(f"Erro ao montar driver: {e}")
                 attemps += 1
             finally:
                 if driver:
