@@ -51,54 +51,65 @@ export class AppController {
       const currentDirectory = __dirname;
       console.log('Diretório atual do controller:', currentDirectory);
 
+
       pythonProcess.stdout.on('data', (data) => {
-        const message = data.toString().trim();
-        const id = query.id;
+        const progress = parseInt(data.toString()); // Assuming the progress is sent as a number
+        const id = query.id
+        if (!isNaN(progress)) {
+          this.eventsGateway.progress({progress, id}); // Emit the progress event
+        }
 
-        console.log(`Python stdout: ${message}`);
+        console.log(`Progress: ${data}`);
+        if (data.toString().startsWith('ExcelFinal')) {
+          console.log(data);
 
-        if (message.startsWith('ExcelFinal')) {
-          const parts = message.split(' ');
+          const parts = data.toString().split(' ');
           if (parts.length > 1) {
+            nomeDoArquivo = parts[1];
             nomeDoArquivo = parts[1].replace(/[\r\n]+$/, '');
+          } else {
+            console.log('Formato inesperado da string:', data);
           }
-        } else if (message.startsWith('8')) {
-          if (!nomeDoArquivo) {
-            console.error('Nome do arquivo final não capturado!');
-            if(!res.headersSent) res.status(500).send('Nome do arquivo não foi gerado.');
-            return;
-          }
+        }
 
-          // Constrói o caminho para o arquivo final usando __dirname
-          const filePath = join(currentDirectory, '..', 'python_backend', 'Excel', nomeDoArquivo);
-          
+        if (data.toString().startsWith('8')) {
+          console.log(nomeDoArquivo);
+          const filePath: string = join(
+            currentDirectory,
+            `../python_backend/${nomeDoArquivo}`,
+          );
+
           res.setHeader('Access-Control-Allow-Origin', '*');
-          res.download(filePath, (err) => {
-            if (err) {
-              console.error('Erro ao baixar o arquivo:', err);
-            }
-            // Limpeza opcional do arquivo após o download
-            fs.unlink(filePath, (unlinkErr) => {
-              if (unlinkErr) console.error('Erro ao deletar arquivo final:', unlinkErr);
-              else console.log('Arquivo final deletado com sucesso.');
+
+          if (true) {
+            console.log('b');
+            return res.download(filePath, (err) => {
+              if (err) {
+                console.error('Error downloading file:', err);
+                res.status(500).send('Error downloading file');
+              } else {
+                fs.unlink(filePath, (err) => {
+                  if (err) {
+                    console.error('Error deleting file:', err);
+                  } else {
+                    console.log('File deleted successfully');
+                  }
+                });
+              }
             });
-          });
-        } else {
-          const progress = parseInt(message);
-          if (!isNaN(progress)) {
-            this.eventsGateway.progress({ progress, id });
+          } else {
+            res.status(404).send('File not found');
           }
         }
       });
 
       pythonProcess.stderr.on('data', (data) => {
-        console.error(`Python stderr: ${data}`);
-      });
-
-      pythonProcess.on('close', (code) => {
-        console.log(`Processo Python encerrado com código ${code}`);
-        resolve(undefined);
+        console.error(`Error: ${data}`);
+        // reject(`Error: ${data}`);
       });
     });
   }
+
+  @Get('download-excel')
+  downloadExcel(@Res() res: Response) {}
 }
