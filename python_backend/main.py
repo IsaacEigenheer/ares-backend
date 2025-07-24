@@ -81,33 +81,35 @@ def start(path, config, current_client, page_):
     
     print('7', flush=True)
 
-    if os.path.exists('cropped_images'):
-        for file in os.listdir('cropped_images'):
-            if filename_id in file:
-                os.remove(f'cropped_images/{file}')
-    
-    if os.path.exists('./crops2'):
-        for file in os.listdir('./crops2'):
-            if filename_id in file:
-                os.remove(f'./crops2/{file}')
+    try:
+        if os.path.exists('cropped_images'):
+            for file in os.listdir('cropped_images'):
+                if filename_id in file:
+                    os.remove(f'cropped_images/{file}')
+        
+        if os.path.exists('./crops2'):
+            for file in os.listdir('./crops2'):
+                if filename_id in file:
+                    os.remove(f'./crops2/{file}')
 
-    if os.path.exists('Excel'):
-        for file in os.listdir('Excel'):
-            if filename_id in file:
-                if 'planilha_final' not in file:
-                    os.remove(os.path.join('Excel', file))
+        if os.path.exists('Excel'):
+            for file in os.listdir('Excel'):
+                if filename_id in file:
+                    if 'planilha_final' not in file:
+                        os.remove(os.path.join('Excel', file))
 
-    
-    if os.path.exists('processed_images'):
-        for file in os.listdir('processed_images'):
-            if filename_id in file:
-                os.remove(os.path.join('processed_images', file))
+        
+        if os.path.exists('processed_images'):
+            for file in os.listdir('processed_images'):
+                if filename_id in file:
+                    os.remove(os.path.join('processed_images', file))
 
-    if os.path.exists('images'):
-        for file in os.listdir('images'):
-            if filename_id in file:
-                os.remove(os.path.join('images', file))
-
+        if os.path.exists('images'):
+            for file in os.listdir('images'):
+                if filename_id in file:
+                    os.remove(os.path.join('images', file))
+    except:
+        pass
 
     print('8', flush=True)
 
