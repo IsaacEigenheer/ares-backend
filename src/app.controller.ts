@@ -26,9 +26,9 @@ export class AppController {
       storage: diskStorage({
         destination: './uploads',
         filename: (req, file, callback) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const uniqueSuffix = Date.now();
           const ext = extname(file.originalname);
-          const filename = `upload-${uniqueSuffix}${ext}`;
+          const filename = `output-${uniqueSuffix}${ext}`;
           callback(null, filename);
         },
       }),
