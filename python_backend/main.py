@@ -408,6 +408,7 @@ def excel(path, current_client):
                 chrome_options.add_argument('--headless')
                 chrome_options.add_argument('--disable-dev-shm-usage')
                 chrome_options.add_argument('--window-size=1920,1080')
+                chrome_options.add_extension('./adblock.crx')
 
                 prefs = {
                     "download.default_directory": download_directory,
@@ -451,33 +452,27 @@ def excel(path, current_client):
                     time.sleep(1)
                     u += 1
                 
-                try:
-                    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-                    screenshot_filename = f"debug_attempt_{attemps + 1}_{timestamp}.png"
-                    # Salva o screenshot na pasta na raiz do projeto
-                    screenshot_path = os.path.join(screenshots_dir, screenshot_filename)
-                    driver.save_screenshot(screenshot_path)
-                    # Avisa o backend que o screenshot foi salvo
-                    print(f"DebugScreenshot {screenshot_filename}", flush=True)
-                except Exception as screenshot_error:
-                    print(f"Falha ao tirar screenshot: {screenshot_error}", flush=True)
-            # --- FIM DA LÓGICA DE SCREENSHOT ---
-                
                 links = driver.find_elements(By.XPATH, "//a[contains(@title, 'output')]")
                 for index, link in enumerate(links):
                     try:
-                        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-                        screenshot_filename = f"debug_attempt_{attemps + 1}_{timestamp}.png"
-                        # Salva o screenshot na pasta na raiz do projeto
-                        screenshot_path = os.path.join(screenshots_dir, screenshot_filename)
-                        driver.save_screenshot(screenshot_path)
-                        # Avisa o backend que o screenshot foi salvo
-                        print(f"DebugScreenshot {screenshot_filename}", flush=True)
-                    except Exception as screenshot_error:
-                        print(f"Falha ao tirar screenshot: {screenshot_error}", flush=True)
-                # --- FIM DA LÓGICA DE SCREENSHOT ---
-                    link.click()
-                    time.sleep(9)
+                        driver.execute_script("""
+                        document.querySelectorAll('iframe, .adsbygoogle, [id^="google_ads"]').forEach(ad => ad.remove());
+                        """)
+                    finally:
+                        try:
+                            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                            screenshot_filename = f"debug_attempt_{attemps + 1}_{timestamp}.png"
+                            # Salva o screenshot na pasta na raiz do projeto
+                            screenshot_path = os.path.join(screenshots_dir, screenshot_filename)
+                            driver.save_screenshot(screenshot_path)
+                            # Avisa o backend que o screenshot foi salvo
+                            print(f"DebugScreenshot {screenshot_filename}", flush=True)
+                        except Exception as screenshot_error:
+                            print(f"Falha ao tirar screenshot: {screenshot_error}", flush=True)
+                    # --- FIM DA LÓGICA DE SCREENSHOT ---
+                        finally:
+                            link.click()
+                            time.sleep(9)
                 
                 time.sleep(6)
                 
