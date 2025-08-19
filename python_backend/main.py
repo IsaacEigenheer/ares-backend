@@ -29,7 +29,7 @@ from googleapiclient.http import MediaFileUpload
 from google.oauth2.service_account import Credentials
 import datetime
 
-os.chdir('/python_backend')
+os.chdir('./python_backend')
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -702,14 +702,45 @@ def make_finalSheet(current_client, filename_id):
         generic_convert(filename_id)
 
 
-    
-
 if __name__ == '__main__':
-    arg1 = sys.argv[1]
-    arg2 = sys.argv[2]
-    with open('./config.json') as json_data:
-        data = json.load(json_data,)
-        config = data['customers'][arg2]
-    arg3 = sys.argv[3]
-    start(arg1, config, arg2, arg3)
+    # Modo antigo: python main.py <path> <client> <page>
+    # Modo revisão: python main.py <path1> <path2> <client> <page1> <page2>
+    argc = len(sys.argv)
+
+    if argc not in (4, 6):
+        print("Uso inválido. Esperado 3 ou 5 argumentos após o script.", file=sys.stderr)
+        sys.exit(1)
+
+    if argc == 4:
+        path = sys.argv[1]
+        client_key = sys.argv[2]
+        page = sys.argv[3]
+
+        with open('./config.json') as f:
+            data = json.load(f)
+            config = data['customers'][client_key]
+
+        print(f"modo extração \n parâmetros: \n path: {path} \n cliente: {client_key} \n page: {page}")
+        # chama sua função antiga
+        start(path, config, client_key, page)
+
+    else:  # argc == 6
+        print("modo comparar revisão")
+        path1 = sys.argv[1]
+        path2 = sys.argv[2]
+        client_key = sys.argv[3]
+        page1 = sys.argv[4]
+        page2 = sys.argv[5]
+
+        with open('./config.json') as f:
+            data = json.load(f)
+            config = data['customers'][client_key]
+
+
+        print(f"modo extração \n parâmetros: \n path1: {path1} \n path2: {path2} \n cliente: {client_key} \n page1: {page1} \n page2: {page2} \n")
+        
+        # exemplo: função nova que você cria para comparar dois desenhos
+        # start_revision(path1, path2, config, client_key, page1, page2)
+        # se preferir reaproveitar start, adapte para aceitar os dois paths
+        #start_revision(path1, path2, config, client_key, page1, page2)
 
