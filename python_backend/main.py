@@ -619,10 +619,11 @@ def make_finalSheet(current_client, filename_id):
                     df_final.at[3, 'X'] = c
                     df_final.at[18, 'X'] = p
                     print('6', flush=True)
-                    return arquivo_excel_path
+            
             except:
                 continue
         main()   
+        return arquivo_excel_path
 
 
     def generic_convert(filename_id):
@@ -655,7 +656,7 @@ def make_finalSheet(current_client, filename_id):
                     print(f'ExcelFinal {arquivo_excel_path}', flush=True)
                 wb_destino.save(arquivo_excel_path)
                 print('6', flush=True)
-                return arquivo_excel_path
+        return arquivo_excel_path
             
     def whirlpoolConvert(filename_id):
         caminho_pasta_excel = 'Excel'
