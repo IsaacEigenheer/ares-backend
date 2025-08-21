@@ -28,7 +28,7 @@ from googleapiclient.http import MediaFileUpload
 from google.oauth2.service_account import Credentials
 from comparar_revisao import main
 
-os.chdir('./python_backend')
+os.chdir('/python_backend')
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
