@@ -407,7 +407,7 @@ def excel(path, current_client):
         while attemps < 3:
             driver = None # Garante que o driver é definido
             try:
-                driver = create_driver('firefox')
+                driver = create_driver('google')
 
                 driver.get('https://www.google.com/')
                 driver.execute_script(f'window.location.href = "https://www.fileeagle.com/pdfeagle/image-to-excel";')
