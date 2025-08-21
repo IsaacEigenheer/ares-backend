@@ -22,14 +22,13 @@ from ultralytics import YOLO
 import warnings
 import openpyxl
 import pdfplumber
-import re
 import tabula
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from google.oauth2.service_account import Credentials
-import datetime
+from comparar_revisao import main
 
-os.chdir('/python_backend')
+os.chdir('./python_backend')
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -42,9 +41,11 @@ def calc_size(path):
         area = np.sqrt(int(width * height))
         return area, height, width
 
-def start(path, config, current_client, page_):
+def start(path, config, current_client, page_, revision=False):
     global pdf_path
     global filename_id
+    global revision_
+    revision_ = revision
     page_ = int(page_)
     print('1', flush=True)
 
@@ -66,6 +67,7 @@ def start(path, config, current_client, page_):
         image = first_page.get_pixmap(matrix=fitz.Matrix(scale_factor, scale_factor))
         image.save(f'./images/{filename_id}.png')
         image_path = f'./images/{filename_id}.png'
+        pdf_document.close()
         processar_imagem(image_path, config, current_client, h_src, w_src, scale_factor, pdf_path, page_)
     
     if current_client != 'HPE' and current_client != 'Whirlpool':
@@ -75,7 +77,7 @@ def start(path, config, current_client, page_):
         excel(path, current_client)
 
     try:
-        make_finalSheet(current_client, filename_id)
+        excel_path = make_finalSheet(current_client, filename_id)
     except:
         pass
     
@@ -108,10 +110,19 @@ def start(path, config, current_client, page_):
             for file in os.listdir('images'):
                 if filename_id in file:
                     os.remove(os.path.join('images', file))
+        
+        if os.path.exists('../uploads'):
+            for file in os.listdir('../uploads'):
+                if filename_id in file:
+                    os.remove(os.path.join('../uploads', file))
+
     except:
         pass
-
-    print('8', flush=True)
+    
+    if not revision:
+     print('8', flush=True)
+    else:
+        return excel_path
 
 
 def processar_imagem(image_path, config, current_client, h_src, w_src, scale_factor, pdf_path, page_):
@@ -396,27 +407,7 @@ def excel(path, current_client):
         while attemps < 3:
             driver = None # Garante que o driver é definido
             try:
-                download_directory = os.path.abspath("Excel")
-                os.makedirs(download_directory, exist_ok=True)
-                
-                chrome_options = Options()
-                chrome_options.add_argument('--ignore-ssl-errors=yes')
-                chrome_options.add_argument('--ignore-certificate-errors')
-                chrome_options.add_argument('--no-sandbox')
-                chrome_options.add_argument('--headless')
-                chrome_options.add_argument('--disable-dev-shm-usage')
-                chrome_options.add_argument('--window-size=1920,1080')
-                chrome_options.add_extension('./adblock.crx')
-
-                prefs = {
-                    "download.default_directory": download_directory,
-                    "download.prompt_for_download": False,
-                    "download.directory_upgrade": True,
-                    "safeBrowse.enabled": True,
-                    "profile.default_content_setting_values.automatic_downloads": 1
-                }
-                chrome_options.add_experimental_option("prefs", prefs)
-                driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=chrome_options)
+                driver = create_driver('firefox')
 
                 driver.get('https://www.google.com/')
                 driver.execute_script(f'window.location.href = "https://www.fileeagle.com/pdfeagle/image-to-excel";')
@@ -474,8 +465,69 @@ def excel(path, current_client):
             finally:
                 if driver:
                     driver.quit()
-    
+                    
     convert_to_excel()
+    
+def create_driver(browser):
+    """
+    Create and configure a WebDriver based on the environment.
+    In production: Chrome
+    In development: Firefox
+    """
+    # Determine environment (you might want to use a proper environment variable)
+    is_production = browser == 'google'
+    
+    if is_production:
+        # Chrome configuration for production
+        download_directory = os.path.abspath("Excel")
+        os.makedirs(download_directory, exist_ok=True)
+        
+        chrome_options = Options()
+        chrome_options.add_argument('--ignore-ssl-errors=yes')
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        chrome_options.add_argument('--window-size=1920,1080')
+        chrome_options.add_extension('./adblock.crx')
+
+        prefs = {
+            "download.default_directory": download_directory,
+            "download.prompt_for_download": False,
+            "download.directory_upgrade": True,
+            "safeBrowse.enabled": True,
+            "profile.default_content_setting_values.automatic_downloads": 1
+        }
+        chrome_options.add_experimental_option("prefs", prefs)
+        
+        return webdriver.Chrome(
+            service=ChromeService(ChromeDriverManager().install()), 
+            options=chrome_options
+        )
+    else:
+        # Firefox configuration for development
+        from selenium.webdriver.firefox.options import Options as FirefoxOptions
+        from selenium.webdriver.firefox.service import Service as FirefoxService
+        from webdriver_manager.firefox import GeckoDriverManager
+        
+        download_directory = os.path.abspath("Excel")
+
+        firefox_service = FirefoxService(executable_path=GeckoDriverManager().install())
+    
+        firefox_options = FirefoxOptions()
+        firefox_options.add_argument('--ignore-ssl-errors=yes')
+        firefox_options.add_argument('--ignore-certificate-errors')
+        #firefox_options.add_argument('--headless')
+        profile = webdriver.FirefoxProfile()
+        profile.set_preference('browser.download.folderList', 2)
+        profile.set_preference('browser.download.manager.showWhenStarting', False)
+        profile.set_preference('browser.download.dir', download_directory)
+        profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/pdf')
+
+        firefox_options.profile = profile
+
+        return webdriver.Firefox(service=firefox_service, options=firefox_options)
+
 
 def make_finalSheet(current_client, filename_id):
     print('5', flush=True)
@@ -560,12 +612,14 @@ def make_finalSheet(current_client, filename_id):
                                 ws_destino.append(row)
 
                     arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
-                    print(f'ExcelFinal {arquivo_excel_path}', flush=True)
+                    if not revision_:
+                        print(f'ExcelFinal {arquivo_excel_path}', flush=True)
                     wb_destino.save(arquivo_excel_path)
                     df_final = pd.read_excel(arquivo_excel_path, sheet_name='DADOS')    
                     df_final.at[3, 'X'] = c
                     df_final.at[18, 'X'] = p
                     print('6', flush=True)
+                    return arquivo_excel_path
             except:
                 continue
         main()   
@@ -597,9 +651,11 @@ def make_finalSheet(current_client, filename_id):
                             ws_destino.append(row)
 
                 arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
-                print(f'ExcelFinal {arquivo_excel_path}', flush=True)
+                if not revision_:
+                    print(f'ExcelFinal {arquivo_excel_path}', flush=True)
                 wb_destino.save(arquivo_excel_path)
                 print('6', flush=True)
+                return arquivo_excel_path
             
     def whirlpoolConvert(filename_id):
         caminho_pasta_excel = 'Excel'
@@ -688,19 +744,21 @@ def make_finalSheet(current_client, filename_id):
 
         # Salvar a planilha final contendo todas as abas
         arquivo_excel_path = f'Excel/planilha_final{filename_id}.xlsx'
-        print(f'ExcelFinal {arquivo_excel_path}', flush=True)
+        if not revision_:
+            print(f'ExcelFinal {arquivo_excel_path}', flush=True)
         wb_destino.save(arquivo_excel_path)
         print('6', flush=True)
+        return arquivo_excel_path
 
 
     warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl.styles.stylesheet")
     if current_client == 'Caterpillar':
-        convert(filename_id)
+        return convert(filename_id)
     elif current_client == 'Whirlpool':
-        whirlpoolConvert(filename_id)
+        return whirlpoolConvert(filename_id)
     else:
-        generic_convert(filename_id)
-
+        return generic_convert(filename_id)
+    
 
 if __name__ == '__main__':
     # Modo antigo: python main.py <path> <client> <page>
@@ -736,11 +794,27 @@ if __name__ == '__main__':
             data = json.load(f)
             config = data['customers'][client_key]
 
-
         print(f"modo extração \n parâmetros: \n path1: {path1} \n path2: {path2} \n cliente: {client_key} \n page1: {page1} \n page2: {page2} \n")
         
+        excelPath_1 = start(path1, config, client_key, page1, True)
+
+        excelPath_2 = start(path2, config, client_key, page2, True)
+
+        print(f'ExcelFinal Excel/relatorio_final{filename_id}.xlsx', flush=True)
+        main(excelPath_1, excelPath_2, filename_id)
+
+        try:
+            if os.path.exists('Excel'):
+                for file in os.listdir('Excel'):
+                    if filename_id in file:
+                        if 'relatorio_final' not in file:
+                            os.remove(os.path.join('Excel', file))
+
+        except:
+            pass
+        print('8', flush=True)
+
         # exemplo: função nova que você cria para comparar dois desenhos
         # start_revision(path1, path2, config, client_key, page1, page2)
         # se preferir reaproveitar start, adapte para aceitar os dois paths
         #start_revision(path1, path2, config, client_key, page1, page2)
-
